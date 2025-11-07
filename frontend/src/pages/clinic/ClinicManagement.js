@@ -78,9 +78,17 @@ function ClinicManagement() {
         <div className="clinic-management-container">
             <div className="clinic-management-header">
                 <h2>Manage Clinic Members</h2>
-                <button onClick={handleBack} className="btn-back">
-                    Back to Clinics
-                </button>
+                <div className="header-actions">
+                    <button onClick={() => navigate(`/clinics/${id}/patients`)} className="btn-primary">
+                        Patients
+                    </button>
+                    <button onClick={() => navigate(`/clinics/${id}/treatments`)} className="btn-primary">
+                        Treatments
+                    </button>
+                    <button onClick={handleBack} className="btn-back">
+                        Back to Clinics
+                    </button>
+                </div>
             </div>
 
             {error && <div className="error-message">{error}</div>}
