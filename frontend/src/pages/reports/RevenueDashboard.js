@@ -101,8 +101,10 @@ function RevenueDashboard() {
         );
         setStaffPerformance(staffResponse.data);
       } catch (err) {
-        // Staff performance might not be available
-        console.error('Staff performance not available:', err);
+        // Only silently handle 404 (endpoint not implemented) or 403 (no data available)
+        if (err.response?.status !== 404 && err.response?.status !== 403) {
+          console.error('Unexpected error fetching staff performance:', err);
+        }
       }
 
     } catch (err) {
