@@ -12,9 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.security.SecureRandom;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -71,24 +70,22 @@ public class ClinicService {
         List<ClinicMembership> memberships = membershipRepository.findByUserId(userId);
 
         // Get clinic details for each membership
-        List<ClinicResponse> clinics = new ArrayList<>();
-        for (ClinicMembership membership : memberships) {
-            Clinic clinic = clinicRepository.findById(membership.getClinicId())
-                    .orElse(null);
-            if (clinic != null) {
-                clinics.add(new ClinicResponse(
-                        clinic.getId(),
-                        clinic.getName(),
-                        clinic.getCode(),
-                        clinic.getOwnerId(),
-                        membership.getRole(),
-                        membership.getStatus(),
-                        clinic.getCreatedAt(),
-                        clinic.getUpdatedAt()
-                ));
-            }
-        }
-        return clinics;
+        return memberships.stream()
+                .map(membership -> {
+                    Clinic clinic = clinicRepository.findById(membership.getClinicId())
+                            .orElseThrow(() -> new RuntimeException("Clinic not found for membership"));
+                    return new ClinicResponse(
+                            clinic.getId(),
+                            clinic.getName(),
+                            clinic.getCode(),
+                            clinic.getOwnerId(),
+                            membership.getRole(),
+                            membership.getStatus(),
+                            clinic.getCreatedAt(),
+                            clinic.getUpdatedAt()
+                    );
+                })
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -242,7 +239,7 @@ public class ClinicService {
 
     private String generateUniqueCode() {
         String code;
-        Random random = new Random();
+        SecureRandom random = new SecureRandom();
         do {
             StringBuilder sb = new StringBuilder(CODE_LENGTH);
             for (int i = 0; i < CODE_LENGTH; i++) {
