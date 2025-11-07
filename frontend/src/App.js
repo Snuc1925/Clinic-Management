@@ -13,6 +13,8 @@ import PatientDetail from './pages/patient/PatientDetail';
 import TreatmentList from './pages/treatment/TreatmentList';
 import TreatmentForm from './pages/treatment/TreatmentForm';
 import TreatmentDetail from './pages/treatment/TreatmentDetail';
+import AppointmentList from './pages/appointment/AppointmentList';
+import CalendarView from './pages/appointment/CalendarView';
 import './App.css';
 
 function App() {
@@ -34,6 +36,8 @@ function App() {
           <Route path="/clinics/:clinicId/treatments" element={<TreatmentList />} />
           <Route path="/clinics/:clinicId/treatments/new" element={<TreatmentForm />} />
           <Route path="/clinics/:clinicId/treatments/:treatmentId" element={<TreatmentDetail />} />
+          <Route path="/clinics/:clinicId/appointments" element={<AppointmentList />} />
+          <Route path="/clinics/:clinicId/calendar" element={<CalendarView />} />
           <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
       </div>

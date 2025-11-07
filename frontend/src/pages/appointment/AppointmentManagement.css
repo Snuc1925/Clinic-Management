@@ -1,0 +1,270 @@
+.appointment-management,
+.calendar-view {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.appointments-section {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.appointments-section h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #333;
+  border-bottom: 2px solid #667eea;
+  padding-bottom: 10px;
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #218838;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  color: #333;
+}
+
+.btn-warning:hover {
+  background-color: #e0a800;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+.calendar-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.view-selector {
+  display: flex;
+  gap: 5px;
+}
+
+.view-selector button {
+  padding: 8px 15px;
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.view-selector button.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+.current-date {
+  font-weight: 600;
+  font-size: 18px;
+  color: #333;
+}
+
+.calendar-grid {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.calendar-grid.month {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+}
+
+.calendar-day {
+  min-height: 120px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  padding: 8px;
+  background: #fff;
+}
+
+.calendar-day.empty {
+  background: #f8f9fa;
+  border-color: transparent;
+}
+
+.calendar-day.today {
+  border-color: #667eea;
+  border-width: 2px;
+  background-color: #f0f4ff;
+}
+
+.day-number {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.day-events {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.event {
+  padding: 4px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.event.appointment {
+  background-color: #cce5ff;
+  color: #004085;
+  border-left: 3px solid #007bff;
+}
+
+.event.treatment {
+  background-color: #d4edda;
+  color: #155724;
+  border-left: 3px solid #28a745;
+}
+
+.list-view {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.event-item {
+  display: flex;
+  gap: 20px;
+  padding: 15px;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 10px;
+}
+
+.event-item:last-child {
+  border-bottom: none;
+}
+
+.event-item.appointment {
+  border-left: 4px solid #007bff;
+}
+
+.event-item.treatment {
+  border-left: 4px solid #28a745;
+}
+
+.event-date {
+  min-width: 180px;
+  font-weight: 600;
+  color: #666;
+}
+
+.event-details {
+  flex: 1;
+}
+
+.event-details strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.event-details p {
+  margin: 5px 0;
+  color: #666;
+}
+
+.legend {
+  display: flex;
+  gap: 30px;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.color-box {
+  width: 30px;
+  height: 20px;
+  border-radius: 3px;
+}
+
+.color-box.appointment {
+  background-color: #cce5ff;
+  border-left: 3px solid #007bff;
+}
+
+.color-box.treatment {
+  background-color: #d4edda;
+  border-left: 3px solid #28a745;
+}
+
+@media (max-width: 768px) {
+  .calendar-grid.month {
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+  }
+
+  .calendar-day {
+    min-height: 80px;
+    padding: 5px;
+  }
+
+  .day-number {
+    font-size: 12px;
+  }
+
+  .event {
+    font-size: 9px;
+    padding: 2px 4px;
+  }
+
+  .calendar-controls {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .current-date {
+    width: 100%;
+    text-align: center;
+  }
+
+  .event-item {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .event-date {
+    min-width: auto;
+  }
+}
