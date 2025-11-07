@@ -48,9 +48,14 @@ function Dashboard() {
         <div className="dashboard-container">
             <div className="dashboard-header">
                 <h2>Clinic Management Dashboard</h2>
-                <button onClick={handleLogout} className="btn-logout">
-                    Logout
-                </button>
+                <div className="header-actions">
+                    <button onClick={() => navigate('/clinics')} className="btn-clinics">
+                        My Clinics
+                    </button>
+                    <button onClick={handleLogout} className="btn-logout">
+                        Logout
+                    </button>
+                </div>
             </div>
 
             <div className="dashboard-content">

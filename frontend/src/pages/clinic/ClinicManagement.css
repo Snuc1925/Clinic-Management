@@ -1,10 +1,10 @@
-.dashboard-container {
+.clinic-management-container {
     min-height: 100vh;
     background: #f5f5f5;
     padding: 20px;
 }
 
-.dashboard-header {
+.clinic-management-header {
     background: white;
     padding: 20px;
     border-radius: 10px;
@@ -15,62 +15,47 @@
     margin-bottom: 20px;
 }
 
-.dashboard-header h2 {
+.clinic-management-header h2 {
     margin: 0;
     color: #333;
 }
 
-.header-actions {
+.btn-back {
+    padding: 10px 20px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-back:hover {
+    background: #5a6268;
+}
+
+.clinic-management-content {
     display: flex;
-    gap: 10px;
+    flex-direction: column;
+    gap: 20px;
 }
 
-.btn-clinics {
-    padding: 10px 20px;
-    background: #667eea;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-.btn-clinics:hover {
-    background: #5568d3;
-}
-
-.btn-logout {
-    padding: 10px 20px;
-    background: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-.btn-logout:hover {
-    background: #c82333;
-}
-
-.dashboard-content {
+.members-section {
     background: white;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.dashboard-content h3 {
+.members-section h3 {
     margin-top: 0;
-    color: #333;
     margin-bottom: 20px;
+    color: #333;
 }
 
-.users-table {
+.members-table {
     overflow-x: auto;
 }
 
@@ -95,7 +80,38 @@ table tbody tr:hover {
     background: #f8f9fa;
 }
 
-.btn-delete {
+.btn-accept {
+    padding: 6px 12px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.3s;
+    margin-right: 5px;
+}
+
+.btn-accept:hover {
+    background: #218838;
+}
+
+.btn-reject {
+    padding: 6px 12px;
+    background: #ffc107;
+    color: #333;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-reject:hover {
+    background: #e0a800;
+}
+
+.btn-remove {
     padding: 6px 12px;
     background: #dc3545;
     color: white;
@@ -106,8 +122,26 @@ table tbody tr:hover {
     transition: background 0.3s;
 }
 
-.btn-delete:hover {
+.btn-remove:hover {
     background: #c82333;
+}
+
+.role-badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.role-badge.owner {
+    background: #667eea;
+    color: white;
+}
+
+.role-badge.member {
+    background: #28a745;
+    color: white;
 }
 
 .loading {
@@ -135,17 +169,25 @@ table tbody tr:hover {
 }
 
 @media (max-width: 768px) {
-    .dashboard-header {
+    .clinic-management-header {
         flex-direction: column;
         gap: 15px;
     }
-
+    
     table {
         font-size: 14px;
     }
-
+    
     table th,
     table td {
         padding: 8px;
+    }
+    
+    .btn-accept,
+    .btn-reject,
+    .btn-remove {
+        padding: 4px 8px;
+        font-size: 11px;
+        margin: 2px;
     }
 }
