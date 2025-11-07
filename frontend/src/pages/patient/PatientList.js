@@ -1,7 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { patientService } from '../../services/api';
-import './PatientManagement.css';
+import {
+  Box,
+  Button,
+  Typography,
+  TextField,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  Alert,
+  CircularProgress,
+  Card,
+  CardContent,
+} from '@mui/material';
+import {
+  Add as AddIcon,
+  Visibility as ViewIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  People as PeopleIcon,
+} from '@mui/icons-material';
+import Layout from '../../components/Layout';
+import { patientService, clinicService } from '../../services/api';
+import { formatDate } from '../../utils/formatters';
 
 function PatientList() {
   const { clinicId } = useParams();
@@ -10,32 +36,46 @@ function PatientList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [userRole, setUserRole] = useState('');
 
-  useEffect(() => {
-    loadPatients();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clinicId]);
-
-  const loadPatients = async () => {
+  const loadPatients = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await patientService.getClinicPatients(clinicId);
-      setPatients(response.data);
+      const [patientsResponse, membersResponse] = await Promise.all([
+        patientService.getClinicPatients(clinicId),
+        clinicService.getClinicMembers(clinicId),
+      ]);
+      setPatients(patientsResponse.data);
+      
+      // Determine user's role
+      const storedUser = JSON.parse(localStorage.getItem('user'));
+      const currentMember = membersResponse.data.find(m => m.id === storedUser.id);
+      setUserRole(currentMember?.role || '');
+      
       setError('');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to load patients');
+      setError(err.response?.data?.message || 'Không thể tải danh sách bệnh nhân');
     } finally {
       setLoading(false);
     }
-  };
+  }, [clinicId]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+    loadPatients();
+  }, [loadPatients, navigate]);
 
   const handleDelete = async (patientId) => {
-    if (window.confirm('Are you sure you want to delete this patient?')) {
+    if (window.confirm('Bạn có chắc chắn muốn xóa bệnh nhân này?')) {
       try {
         await patientService.deletePatient(clinicId, patientId);
         loadPatients();
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to delete patient');
+        setError(err.response?.data?.message || 'Không thể xóa bệnh nhân');
       }
     }
   };
@@ -45,76 +85,114 @@ function PatientList() {
     (patient.phone && patient.phone.includes(searchTerm))
   );
 
+  if (loading) {
+    return (
+      <Layout showClinicMenu clinicId={clinicId} userRole={userRole}>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+          <CircularProgress />
+        </Box>
+      </Layout>
+    );
+  }
+
   return (
-    <div className="patient-management">
-      <div className="header">
-        <h2>Patient Management</h2>
-        <div className="actions">
-          <button onClick={() => navigate(`/clinics/${clinicId}/manage`)}>
-            Back to Clinic
-          </button>
-          <button onClick={() => navigate(`/clinics/${clinicId}/patients/new`)} className="primary">
-            Add Patient
-          </button>
-        </div>
-      </div>
+    <Layout showClinicMenu clinicId={clinicId} userRole={userRole}>
+      <Box>
+        <Box display="flex" alignItems="center" justifyContent="space-between" mb={3}>
+          <Box display="flex" alignItems="center">
+            <PeopleIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
+            <Typography variant="h4" component="h1" fontWeight="bold">
+              Quản lý Bệnh nhân
+            </Typography>
+          </Box>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => navigate(`/clinics/${clinicId}/patients/new`)}
+          >
+            Thêm bệnh nhân
+          </Button>
+        </Box>
 
-      {error && <div className="error-message">{error}</div>}
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
+            {error}
+          </Alert>
+        )}
 
-      <div className="search-bar">
-        <input
-          type="text"
-          placeholder="Search patients by name or phone..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
+        <Card sx={{ mb: 3 }}>
+          <CardContent>
+            <TextField
+              fullWidth
+              placeholder="Tìm kiếm theo tên hoặc số điện thoại..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              size="small"
+            />
+          </CardContent>
+        </Card>
 
-      {loading ? (
-        <div className="loading">Loading patients...</div>
-      ) : (
-        <div className="patients-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Phone</th>
-                <th>Date of Birth</th>
-                <th>Address</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell><strong>Họ tên</strong></TableCell>
+                <TableCell><strong>Số điện thoại</strong></TableCell>
+                <TableCell><strong>Ngày sinh</strong></TableCell>
+                <TableCell><strong>Địa chỉ</strong></TableCell>
+                <TableCell align="right"><strong>Thao tác</strong></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
               {filteredPatients.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="no-data">No patients found</td>
-                </tr>
+                <TableRow>
+                  <TableCell colSpan={5} align="center">
+                    <Typography variant="body2" color="text.secondary" py={4}>
+                      Không tìm thấy bệnh nhân nào
+                    </Typography>
+                  </TableCell>
+                </TableRow>
               ) : (
                 filteredPatients.map(patient => (
-                  <tr key={patient.id}>
-                    <td>{patient.fullName}</td>
-                    <td>{patient.phone || 'N/A'}</td>
-                    <td>{patient.dateOfBirth || 'N/A'}</td>
-                    <td>{patient.address || 'N/A'}</td>
-                    <td className="actions-cell">
-                      <button onClick={() => navigate(`/clinics/${clinicId}/patients/${patient.id}`)}>
-                        View
-                      </button>
-                      <button onClick={() => navigate(`/clinics/${clinicId}/patients/${patient.id}/edit`)}>
-                        Edit
-                      </button>
-                      <button onClick={() => handleDelete(patient.id)} className="danger">
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
+                  <TableRow key={patient.id} hover>
+                    <TableCell>{patient.fullName}</TableCell>
+                    <TableCell>{patient.phone || 'N/A'}</TableCell>
+                    <TableCell>{patient.dateOfBirth ? formatDate(patient.dateOfBirth) : 'N/A'}</TableCell>
+                    <TableCell>{patient.address || 'N/A'}</TableCell>
+                    <TableCell align="right">
+                      <IconButton
+                        size="small"
+                        color="info"
+                        onClick={() => navigate(`/clinics/${clinicId}/patients/${patient.id}`)}
+                        title="Xem chi tiết"
+                      >
+                        <ViewIcon />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        color="primary"
+                        onClick={() => navigate(`/clinics/${clinicId}/patients/${patient.id}/edit`)}
+                        title="Chỉnh sửa"
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => handleDelete(patient.id)}
+                        title="Xóa"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
                 ))
               )}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+    </Layout>
   );
 }
 

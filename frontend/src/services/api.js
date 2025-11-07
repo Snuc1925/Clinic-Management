@@ -57,6 +57,9 @@ export const clinicService = {
     getUserClinics: () => {
         return api.get('/clinics');
     },
+    getClinicById: (id) => {
+        return api.get(`/clinics/${id}`);
+    },
     joinClinic: (code) => {
         return api.post(`/clinics/${code}/join`);
     },
@@ -67,7 +70,10 @@ export const clinicService = {
         return api.get(`/clinics/${id}/members`);
     },
     updateMemberStatus: (clinicId, memberId, status) => {
-        return api.put(`/clinics/${clinicId}/members/${memberId}`, { status });
+        return api.put(`/clinics/${clinicId}/members/${memberId}/status`, { status });
+    },
+    updateMemberSalary: (clinicId, memberId, salary) => {
+        return api.put(`/clinics/${clinicId}/members/${memberId}/salary`, { salary });
     },
     removeMember: (clinicId, memberId) => {
         return api.delete(`/clinics/${clinicId}/members/${memberId}`);
