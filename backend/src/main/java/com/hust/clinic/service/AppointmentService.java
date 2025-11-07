@@ -84,7 +84,7 @@ public class AppointmentService {
         ClinicMembership membership = clinicMembershipRepository.findByClinicIdAndUserId(clinicId, userId)
                 .orElseThrow(() -> new RuntimeException("You are not a member of this clinic"));
 
-        if (!"active".equals(membership.getStatus())) {
+        if (!"accepted".equals(membership.getStatus())) {
             throw new RuntimeException("Your membership is not active");
         }
     }

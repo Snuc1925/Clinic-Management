@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface InventoryItemRepository extends JpaRepository<InventoryItem, Long> {
     List<InventoryItem> findByClinicId(Long clinicId);
-    List<InventoryItem> findByClinicIdAndQuantityLessThanMinimumStockLevel(Long clinicId);
+//    List<InventoryItem> findByClinicIdAndQuantityLessThanMinimumStockLevel(Long clinicId);
 }
