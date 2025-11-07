@@ -44,8 +44,7 @@ function Register() {
             };
 
             await authService.register(userData);
-            alert('Registration successful! Please login.');
-            navigate('/login');
+            navigate('/login', { state: { message: 'Registration successful! Please login.' } });
         } catch (err) {
             setError(err.response?.data?.error || 'Registration failed. Please try again.');
         } finally {

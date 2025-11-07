@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { authService } from '../services/api';
 import './Login.css';
 
@@ -9,6 +9,8 @@ function Login() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
+    const successMessage = location.state?.message;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -32,6 +34,7 @@ function Login() {
             <div className="login-box">
                 <h2>Clinic Management System</h2>
                 <h3>Login</h3>
+                {successMessage && <div className="success-message">{successMessage}</div>}
                 {error && <div className="error-message">{error}</div>}
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">

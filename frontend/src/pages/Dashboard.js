@@ -33,9 +33,10 @@ function Dashboard() {
         if (window.confirm('Are you sure you want to delete this user?')) {
             try {
                 await userService.deleteUser(id);
+                setError('');
                 fetchUsers();
             } catch (err) {
-                alert('Failed to delete user');
+                setError('Failed to delete user. Please try again.');
             }
         }
     };
