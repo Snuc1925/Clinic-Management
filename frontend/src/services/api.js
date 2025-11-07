@@ -50,4 +50,28 @@ export const userService = {
     },
 };
 
+export const clinicService = {
+    createClinic: (name) => {
+        return api.post('/clinics', { name });
+    },
+    getUserClinics: () => {
+        return api.get('/clinics');
+    },
+    joinClinic: (code) => {
+        return api.post(`/clinics/${code}/join`);
+    },
+    updateClinic: (id, name) => {
+        return api.put(`/clinics/${id}`, { name });
+    },
+    getClinicMembers: (id) => {
+        return api.get(`/clinics/${id}/members`);
+    },
+    updateMemberStatus: (clinicId, memberId, status) => {
+        return api.put(`/clinics/${clinicId}/members/${memberId}`, { status });
+    },
+    removeMember: (clinicId, memberId) => {
+        return api.delete(`/clinics/${clinicId}/members/${memberId}`);
+    },
+};
+
 export default api;
