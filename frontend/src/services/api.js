@@ -74,4 +74,58 @@ export const clinicService = {
     },
 };
 
+export const patientService = {
+    createPatient: (clinicId, patientData) => {
+        return api.post(`/clinics/${clinicId}/patients`, patientData);
+    },
+    getClinicPatients: (clinicId) => {
+        return api.get(`/clinics/${clinicId}/patients`);
+    },
+    getPatient: (clinicId, patientId) => {
+        return api.get(`/clinics/${clinicId}/patients/${patientId}`);
+    },
+    updatePatient: (clinicId, patientId, patientData) => {
+        return api.put(`/clinics/${clinicId}/patients/${patientId}`, patientData);
+    },
+    deletePatient: (clinicId, patientId) => {
+        return api.delete(`/clinics/${clinicId}/patients/${patientId}`);
+    },
+};
+
+export const treatmentService = {
+    createTreatment: (clinicId, treatmentData) => {
+        return api.post(`/clinics/${clinicId}/treatments`, treatmentData);
+    },
+    getClinicTreatments: (clinicId) => {
+        return api.get(`/clinics/${clinicId}/treatments`);
+    },
+    getTreatment: (clinicId, treatmentId) => {
+        return api.get(`/clinics/${clinicId}/treatments/${treatmentId}`);
+    },
+};
+
+export const paymentService = {
+    addPayment: (treatmentId, paymentData) => {
+        return api.post(`/treatments/${treatmentId}/payments`, paymentData);
+    },
+    getTreatmentPayments: (treatmentId) => {
+        return api.get(`/treatments/${treatmentId}/payments`);
+    },
+};
+
+export const appointmentService = {
+    createAppointment: (clinicId, appointmentData) => {
+        return api.post(`/clinics/${clinicId}/appointments`, appointmentData);
+    },
+    getClinicAppointments: (clinicId) => {
+        return api.get(`/clinics/${clinicId}/appointments`);
+    },
+    getCalendarData: (clinicId, start, end) => {
+        return api.get(`/clinics/${clinicId}/calendar`, { params: { start, end } });
+    },
+    updateAppointmentStatus: (appointmentId, status) => {
+        return api.put(`/appointments/${appointmentId}`, { status });
+    },
+};
+
 export default api;
