@@ -23,6 +23,7 @@
 .header-actions {
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 .btn-primary {
