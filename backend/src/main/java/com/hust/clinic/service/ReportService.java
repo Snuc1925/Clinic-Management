@@ -36,13 +36,8 @@ public class ReportService {
     public RevenueReportResponse getRevenueReport(Long userId, Long clinicId, LocalDate startDate, LocalDate endDate) {
         validateUserAccess(userId, clinicId);
         
-        // Get all payments in the date range
-        List<Payment> payments = paymentRepository.findAll().stream()
-            .filter(p -> {
-                LocalDate paymentDate = p.getPaymentDate();
-                return !paymentDate.isBefore(startDate) && !paymentDate.isAfter(endDate);
-            })
-            .collect(Collectors.toList());
+        // Get all payments in the date range using database query
+        List<Payment> payments = paymentRepository.findByPaymentDateBetween(startDate, endDate);
         
         // Filter payments for treatments in this clinic
         List<Treatment> clinicTreatments = treatmentRepository.findByClinicId(clinicId);

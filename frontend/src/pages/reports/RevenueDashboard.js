@@ -144,23 +144,26 @@ function RevenueDashboard() {
             <div className="daily-revenue-section">
               <h2>Daily Revenue</h2>
               <div className="daily-revenue-chart">
-                {Object.entries(revenueData.dailyRevenue)
-                  .sort(([dateA], [dateB]) => new Date(dateA) - new Date(dateB))
-                  .map(([date, amount]) => (
-                    <div key={date} className="daily-bar">
-                      <div className="bar-label">{formatDate(date)}</div>
-                      <div className="bar-container">
-                        <div 
-                          className="bar" 
-                          style={{
-                            height: `${(amount / Math.max(...Object.values(revenueData.dailyRevenue))) * 200}px`
-                          }}
-                        >
-                          <span className="bar-value">{formatCurrency(amount)}</span>
+                {(() => {
+                  const maxRevenue = Math.max(...Object.values(revenueData.dailyRevenue));
+                  return Object.entries(revenueData.dailyRevenue)
+                    .sort(([dateA], [dateB]) => new Date(dateA) - new Date(dateB))
+                    .map(([date, amount]) => (
+                      <div key={date} className="daily-bar">
+                        <div className="bar-label">{formatDate(date)}</div>
+                        <div className="bar-container">
+                          <div 
+                            className="bar" 
+                            style={{
+                              height: `${(amount / maxRevenue) * 200}px`
+                            }}
+                          >
+                            <span className="bar-value">{formatCurrency(amount)}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ));
+                })()}
               </div>
             </div>
           )}
