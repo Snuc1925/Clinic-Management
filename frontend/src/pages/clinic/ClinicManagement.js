@@ -91,6 +91,12 @@ function ClinicManagement() {
                     <button onClick={() => navigate(`/clinics/${id}/calendar`)} className="btn-primary">
                         Calendar
                     </button>
+                    <button onClick={() => navigate(`/clinics/${id}/reports/revenue`)} className="btn-primary">
+                        Revenue Reports
+                    </button>
+                    <button onClick={() => navigate(`/clinics/${id}/suppliers`)} className="btn-primary">
+                        Suppliers
+                    </button>
                     <button onClick={handleBack} className="btn-back">
                         Back to Clinics
                     </button>

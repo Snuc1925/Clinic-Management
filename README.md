@@ -19,28 +19,63 @@ A comprehensive full-stack clinic management system built with Java Spring Boot 
 
 ## Features
 
-### Backend (Java Spring Boot)
-- ✅ User registration and authentication
-- ✅ JWT-based security
-- ✅ RESTful API endpoints
-- ✅ MySQL database integration
-- ✅ User CRUD operations
-- ✅ Password encryption with BCrypt
+### Core Features
+- ✅ User registration and authentication with JWT
+- ✅ Multi-clinic support with membership management
+- ✅ Patient management (CRUD operations)
+- ✅ Treatment records and history
+- ✅ Appointment scheduling with calendar view
+- ✅ Payment tracking and management
 
-### Frontend (ReactJS)
-- ✅ Responsive user interface
-- ✅ User login and registration pages
-- ✅ Dashboard with user management
-- ✅ API integration with backend
-- ✅ Modern gradient design
+### NEW: Inventory Management System
+- ✅ **Supplier Management**: Complete CRUD operations for suppliers
+  - Contact information (person, phone, email)
+  - Payment terms tracking
+  - Notes and custom fields
+- ✅ **Inventory Item Tracking**: Medical supplies, medicines, and equipment
+  - Stock level monitoring
+  - Expiry date tracking
+  - Minimum stock level alerts
+  - Category-based organization
+- ✅ **Purchase Order Management**: 
+  - Order creation and tracking
+  - Approval workflow (Pending → Approved → Received)
+  - Supplier association
+  - Expected delivery date tracking
 
-### User Entity Fields
-- `id` (Long) - Auto-generated primary key
-- `phone` (String) - Unique phone number (used for login)
-- `fullName` (String) - User's full name
-- `address` (String) - User's address (optional)
-- `dateOfBirth` (LocalDate) - User's date of birth (optional)
-- `password` (String) - Encrypted password
+### NEW: Staff Salary & Payroll System
+- ✅ **Flexible Pay Structures**: 
+  - Hourly rate
+  - Monthly salary
+  - Commission-based
+- ✅ **Salary Calculation Components**:
+  - Base salary/rate
+  - Overtime hours and rate
+  - Commission tracking
+  - Bonus amounts
+  - Deduction management
+- ✅ **Payroll Records**: Period-based salary tracking and payment status
+
+### NEW: Reporting & Analytics
+- ✅ **Revenue Dashboard**: 
+  - Week/Month/Year views
+  - Daily revenue visualization
+  - Total revenue, expenses, and profit/loss calculations
+- ✅ **Staff Performance Reports**:
+  - Treatment count by staff
+  - Revenue generated per staff member
+  - Average revenue per treatment
+- ✅ **Financial Analysis**: 
+  - Revenue vs expenses tracking
+  - Profit/loss calculations
+  - Period-based comparisons
+
+### User Interface
+- ✅ Responsive design with modern gradient styling
+- ✅ Intuitive navigation between clinic features
+- ✅ Real-time data visualization
+- ✅ Modal forms for data entry
+- ✅ Comprehensive error handling and user feedback
 
 ## Technology Stack
 
@@ -374,6 +409,117 @@ DELETE /api/users/{id}
 Authorization: Bearer {token}
 ```
 
+### NEW: Inventory Management Endpoints
+
+#### Supplier Management
+
+##### Create Supplier
+```http
+POST /api/clinics/{clinicId}/suppliers
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "name": "Medical Supplies Inc.",
+  "contactPerson": "John Smith",
+  "contactPhone": "555-1234",
+  "contactEmail": "john@medicalsupplies.com",
+  "address": "123 Supply St",
+  "paymentTerms": "Net 30",
+  "notes": "Primary medical supplies vendor"
+}
+```
+
+##### Get All Suppliers for a Clinic
+```http
+GET /api/clinics/{clinicId}/suppliers
+Authorization: Bearer {token}
+```
+
+##### Get Supplier by ID
+```http
+GET /api/clinics/{clinicId}/suppliers/{supplierId}
+Authorization: Bearer {token}
+```
+
+##### Update Supplier
+```http
+PUT /api/clinics/{clinicId}/suppliers/{supplierId}
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+##### Delete Supplier
+```http
+DELETE /api/clinics/{clinicId}/suppliers/{supplierId}
+Authorization: Bearer {token}
+```
+
+### NEW: Reporting & Analytics Endpoints
+
+#### Revenue Reports
+
+##### Get Weekly Revenue
+```http
+GET /api/clinics/{clinicId}/reports/revenue/week
+Authorization: Bearer {token}
+```
+
+##### Get Monthly Revenue
+```http
+GET /api/clinics/{clinicId}/reports/revenue/month
+Authorization: Bearer {token}
+```
+
+##### Get Yearly Revenue
+```http
+GET /api/clinics/{clinicId}/reports/revenue/year
+Authorization: Bearer {token}
+```
+
+##### Get Custom Period Revenue
+```http
+GET /api/clinics/{clinicId}/reports/revenue?startDate=2025-01-01&endDate=2025-01-31
+Authorization: Bearer {token}
+```
+
+**Response:**
+```json
+{
+  "startDate": "2025-01-01",
+  "endDate": "2025-01-31",
+  "totalRevenue": 15000.00,
+  "totalExpenses": 5000.00,
+  "profitLoss": 10000.00,
+  "dailyRevenue": {
+    "2025-01-01": 500.00,
+    "2025-01-02": 750.00,
+    ...
+  }
+}
+```
+
+#### Staff Performance
+
+##### Get Staff Performance Report
+```http
+GET /api/clinics/{clinicId}/reports/staff-performance?startDate=2025-01-01&endDate=2025-01-31
+Authorization: Bearer {token}
+```
+
+**Response:**
+```json
+[
+  {
+    "staffId": 1,
+    "staffName": "Dr. Smith",
+    "treatmentCount": 45,
+    "totalRevenue": 22500.00,
+    "averageRevenuePerTreatment": 500.00
+  }
+]
+```
+
 ## Usage
 
 ### First Time Setup
@@ -406,6 +552,46 @@ Authorization: Bearer {token}
 - View all registered users
 - Delete users (admin functionality)
 - Logout to return to login page
+
+### NEW: Using Clinic Features
+
+#### Managing Suppliers
+1. From the clinic management page, click "Suppliers"
+2. Click "+ Add Supplier" to create a new supplier
+3. Fill in supplier details:
+   - Name (required)
+   - Contact person, phone, email
+   - Address and payment terms
+   - Additional notes
+4. Click "Create" to save
+5. Use "Edit" to modify existing suppliers
+6. Use "Delete" to remove suppliers (confirmation required)
+
+#### Viewing Revenue Reports
+1. From the clinic management page, click "Revenue Reports"
+2. Select the time period (Week, Month, or Year)
+3. View:
+   - Total Revenue, Expenses, and Profit/Loss
+   - Daily revenue breakdown with visual chart
+   - Staff performance metrics
+   - Treatment counts and average revenue
+
+#### Staff Performance Analysis
+- Automatically displayed in Revenue Dashboard
+- Shows treatment count by staff member
+- Displays total revenue generated
+- Calculates average revenue per treatment
+- Helps identify top performers
+
+### Navigation Guide
+
+From any clinic management page, you can access:
+- **Patients**: Manage patient records
+- **Treatments**: View and create treatment records
+- **Appointments**: Schedule and manage appointments
+- **Calendar**: Visual calendar view of appointments
+- **Revenue Reports**: Financial analytics and insights
+- **Suppliers**: Manage supplier relationships
 
 ## Default Credentials
 
