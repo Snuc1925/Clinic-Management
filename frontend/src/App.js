@@ -1,7 +1,12 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import theme from './theme';
+import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
 import ClinicList from './pages/clinic/ClinicList';
 import CreateClinic from './pages/clinic/CreateClinic';
@@ -21,31 +26,35 @@ import './App.css';
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/clinics" element={<ClinicList />} />
-          <Route path="/clinics/create" element={<CreateClinic />} />
-          <Route path="/clinics/join" element={<JoinClinic />} />
-          <Route path="/clinics/:id/manage" element={<ClinicManagement />} />
-          <Route path="/clinics/:clinicId/patients" element={<PatientList />} />
-          <Route path="/clinics/:clinicId/patients/new" element={<PatientForm />} />
-          <Route path="/clinics/:clinicId/patients/:patientId" element={<PatientDetail />} />
-          <Route path="/clinics/:clinicId/patients/:patientId/edit" element={<PatientForm />} />
-          <Route path="/clinics/:clinicId/treatments" element={<TreatmentList />} />
-          <Route path="/clinics/:clinicId/treatments/new" element={<TreatmentForm />} />
-          <Route path="/clinics/:clinicId/treatments/:treatmentId" element={<TreatmentDetail />} />
-          <Route path="/clinics/:clinicId/appointments" element={<AppointmentList />} />
-          <Route path="/clinics/:clinicId/calendar" element={<CalendarView />} />
-          <Route path="/clinics/:clinicId/reports/revenue" element={<RevenueDashboard />} />
-          <Route path="/clinics/:clinicId/suppliers" element={<SupplierList />} />
-          <Route path="/" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </div>
-    </Router>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router>
+        <div className="App">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/clinics" element={<ClinicList />} />
+            <Route path="/clinics/create" element={<CreateClinic />} />
+            <Route path="/clinics/join" element={<JoinClinic />} />
+            <Route path="/clinics/:id/manage" element={<ClinicManagement />} />
+            <Route path="/clinics/:clinicId/patients" element={<PatientList />} />
+            <Route path="/clinics/:clinicId/patients/new" element={<PatientForm />} />
+            <Route path="/clinics/:clinicId/patients/:patientId" element={<PatientDetail />} />
+            <Route path="/clinics/:clinicId/patients/:patientId/edit" element={<PatientForm />} />
+            <Route path="/clinics/:clinicId/treatments" element={<TreatmentList />} />
+            <Route path="/clinics/:clinicId/treatments/new" element={<TreatmentForm />} />
+            <Route path="/clinics/:clinicId/treatments/:treatmentId" element={<TreatmentDetail />} />
+            <Route path="/clinics/:clinicId/appointments" element={<AppointmentList />} />
+            <Route path="/clinics/:clinicId/calendar" element={<CalendarView />} />
+            <Route path="/clinics/:clinicId/reports/revenue" element={<RevenueDashboard />} />
+            <Route path="/clinics/:clinicId/suppliers" element={<SupplierList />} />
+          </Routes>
+        </div>
+      </Router>
+    </ThemeProvider>
   );
 }
 
