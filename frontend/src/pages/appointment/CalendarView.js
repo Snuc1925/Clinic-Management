@@ -134,6 +134,8 @@ function CalendarView() {
   };
 
   const renderListView = () => {
+    const DEFAULT_TREATMENT_TIME = 'T12:00:00';
+    
     const allEvents = [
       ...appointments.map(apt => ({
         type: 'appointment',
@@ -142,7 +144,7 @@ function CalendarView() {
       })),
       ...treatments.map(t => ({
         type: 'treatment',
-        date: new Date(t.date + 'T12:00:00'),
+        date: new Date(t.date + DEFAULT_TREATMENT_TIME),
         data: t
       }))
     ].sort((a, b) => a.date - b.date);

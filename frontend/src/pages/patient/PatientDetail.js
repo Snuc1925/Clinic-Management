@@ -24,11 +24,11 @@ function PatientDetail() {
       setPatient(patientResponse.data);
 
       const treatmentsResponse = await treatmentService.getClinicTreatments(clinicId);
-      const patientTreatments = treatmentsResponse.data.filter(t => t.patientId === parseInt(patientId));
+      const patientTreatments = treatmentsResponse.data.filter(t => t.patientId === Number(patientId));
       setTreatments(patientTreatments);
 
       const appointmentsResponse = await appointmentService.getClinicAppointments(clinicId);
-      const patientAppointments = appointmentsResponse.data.filter(a => a.patientId === parseInt(patientId));
+      const patientAppointments = appointmentsResponse.data.filter(a => a.patientId === Number(patientId));
       setAppointments(patientAppointments);
 
       setError('');

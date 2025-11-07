@@ -162,8 +162,9 @@ function TreatmentDetail() {
                   onChange={handlePaymentFormChange}
                   step="0.01"
                   min="0.01"
-                  max={treatment.remainingBalance}
+                  max={Math.max(0, treatment.remainingBalance)}
                   required
+                  disabled={treatment.remainingBalance <= 0}
                 />
               </div>
               <div className="form-group">

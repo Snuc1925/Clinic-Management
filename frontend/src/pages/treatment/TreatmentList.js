@@ -89,7 +89,7 @@ function TreatmentList() {
                     <td>{treatment.date}</td>
                     <td>{treatment.patientName}</td>
                     <td>{treatment.doctorName}</td>
-                    <td>{treatment.description ? treatment.description.substring(0, 50) + '...' : 'N/A'}</td>
+                    <td>{treatment.description && treatment.description.length > 50 ? treatment.description.substring(0, 50) + '...' : (treatment.description || 'N/A')}</td>
                     <td>${treatment.totalPayment}</td>
                     <td>${treatment.paidAmount}</td>
                     <td>${treatment.remainingBalance}</td>
