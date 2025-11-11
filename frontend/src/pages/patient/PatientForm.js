@@ -1,7 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { patientService } from '../../services/api';
-import './PatientManagement.css';
+import {
+  Box,
+  Button,
+  Typography,
+  TextField,
+  Alert,
+  CircularProgress,
+  Card,
+  CardContent,
+  Grid,
+} from '@mui/material';
+import {
+  ArrowBack as ArrowBackIcon,
+  Save as SaveIcon,
+  Cancel as CancelIcon,
+  Person as PersonIcon,
+  PersonAdd as PersonAddIcon,
+} from '@mui/icons-material';
+import Layout from '../../components/Layout';
+import { patientService, clinicService } from '../../services/api';
 
 function PatientForm() {
   const { clinicId, patientId } = useParams();
@@ -15,32 +33,62 @@ function PatientForm() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [userRole, setUserRole] = useState('');
   const isEdit = !!patientId && patientId !== 'new';
 
-  useEffect(() => {
-    if (isEdit) {
-      loadPatient();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [patientId]);
-
-  const loadPatient = async () => {
+  const loadPatient = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await patientService.getPatient(clinicId, patientId);
+      const [patientResponse, membersResponse] = await Promise.all([
+        patientService.getPatient(clinicId, patientId),
+        clinicService.getClinicMembers(clinicId),
+      ]);
+
       setFormData({
-        fullName: response.data.fullName || '',
-        phone: response.data.phone || '',
-        address: response.data.address || '',
-        dateOfBirth: response.data.dateOfBirth || '',
-        note: response.data.note || ''
+        fullName: patientResponse.data.fullName || '',
+        phone: patientResponse.data.phone || '',
+        address: patientResponse.data.address || '',
+        dateOfBirth: patientResponse.data.dateOfBirth || '',
+        note: patientResponse.data.note || ''
       });
+
+      // Determine user's role
+      const storedUser = JSON.parse(localStorage.getItem('user'));
+      const currentMember = membersResponse.data.find(m => m.id === storedUser.id);
+      setUserRole(currentMember?.role || '');
+
+      setError('');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to load patient');
+      setError(err.response?.data?.message || 'Không thể tải thông tin bệnh nhân');
     } finally {
       setLoading(false);
     }
-  };
+  }, [clinicId, patientId]);
+
+  const loadUserRole = useCallback(async () => {
+    try {
+      const membersResponse = await clinicService.getClinicMembers(clinicId);
+      const storedUser = JSON.parse(localStorage.getItem('user'));
+      const currentMember = membersResponse.data.find(m => m.id === storedUser.id);
+      setUserRole(currentMember?.role || '');
+    } catch (err) {
+      console.error('Failed to load user role');
+    }
+  }, [clinicId]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
+    if (isEdit) {
+      loadPatient();
+    } else {
+      loadUserRole();
+    }
+  }, [isEdit, loadPatient, loadUserRole, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -56,7 +104,7 @@ function PatientForm() {
 
       navigate(`/clinics/${clinicId}/patients`);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to save patient');
+      setError(err.response?.data?.message || 'Không thể lưu thông tin bệnh nhân');
       setLoading(false);
     }
   };
@@ -68,85 +116,136 @@ function PatientForm() {
     });
   };
 
+  if (loading && isEdit) {
+    return (
+      <Layout showClinicMenu clinicId={clinicId} userRole={userRole}>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+          <CircularProgress />
+        </Box>
+      </Layout>
+    );
+  }
+
   return (
-    <div className="patient-form-container">
-      <div className="header">
-        <h2>{isEdit ? 'Edit Patient' : 'Add New Patient'}</h2>
-        <button onClick={() => navigate(`/clinics/${clinicId}/patients`)}>
-          Back to Patients
-        </button>
-      </div>
+    <Layout showClinicMenu clinicId={clinicId} userRole={userRole}>
+      <Box>
+        <Box display="flex" alignItems="center" justifyContent="space-between" mb={3}>
+          <Box display="flex" alignItems="center">
+            {isEdit ? (
+              <PersonIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
+            ) : (
+              <PersonAddIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
+            )}
+            <Typography variant="h4" component="h1" fontWeight="bold">
+              {isEdit ? 'Chỉnh sửa Bệnh nhân' : 'Thêm Bệnh nhân mới'}
+            </Typography>
+          </Box>
+          <Button
+            variant="outlined"
+            startIcon={<ArrowBackIcon />}
+            onClick={() => navigate(`/clinics/${clinicId}/patients`)}
+          >
+            Quay lại danh sách
+          </Button>
+        </Box>
 
-      {error && <div className="error-message">{error}</div>}
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
+            {error}
+          </Alert>
+        )}
 
-      <form onSubmit={handleSubmit} className="patient-form">
-        <div className="form-group">
-          <label htmlFor="fullName">Full Name *</label>
-          <input
-            type="text"
-            id="fullName"
-            name="fullName"
-            value={formData.fullName}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        <Card>
+          <CardContent>
+            <Box component="form" onSubmit={handleSubmit}>
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Họ và tên *"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    required
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Số điện thoại"
+                    name="phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Ngày sinh"
+                    name="dateOfBirth"
+                    type="date"
+                    value={formData.dateOfBirth}
+                    onChange={handleChange}
+                    InputLabelProps={{ shrink: true }}
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  {/* Empty grid item for spacing */}
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Địa chỉ"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleChange}
+                    multiline
+                    rows={3}
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Ghi chú của bác sĩ"
+                    name="note"
+                    value={formData.note}
+                    onChange={handleChange}
+                    multiline
+                    rows={4}
+                    placeholder="Ghi chú riêng về lịch sử bệnh, dị ứng, v.v..."
+                    variant="outlined"
+                  />
+                </Grid>
+              </Grid>
 
-        <div className="form-group">
-          <label htmlFor="phone">Phone Number</label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="dateOfBirth">Date of Birth</label>
-          <input
-            type="date"
-            id="dateOfBirth"
-            name="dateOfBirth"
-            value={formData.dateOfBirth}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="address">Address</label>
-          <textarea
-            id="address"
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            rows="3"
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="note">Doctor Notes</label>
-          <textarea
-            id="note"
-            name="note"
-            value={formData.note}
-            onChange={handleChange}
-            rows="5"
-            placeholder="Private notes for medical history, allergies, etc."
-          />
-        </div>
-
-        <div className="form-actions">
-          <button type="button" onClick={() => navigate(`/clinics/${clinicId}/patients`)}>
-            Cancel
-          </button>
-          <button type="submit" disabled={loading} className="primary">
-            {loading ? 'Saving...' : (isEdit ? 'Update Patient' : 'Add Patient')}
-          </button>
-        </div>
-      </form>
-    </div>
+              <Box display="flex" justifyContent="flex-end" gap={2} mt={3}>
+                <Button
+                  variant="outlined"
+                  startIcon={<CancelIcon />}
+                  onClick={() => navigate(`/clinics/${clinicId}/patients`)}
+                  disabled={loading}
+                >
+                  Hủy bỏ
+                </Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  startIcon={<SaveIcon />}
+                  disabled={loading}
+                >
+                  {loading ? 'Đang lưu...' : (isEdit ? 'Cập nhật' : 'Thêm bệnh nhân')}
+                </Button>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
+    </Layout>
   );
 }
 

@@ -1,7 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { treatmentService, paymentService } from '../../services/api';
-import './TreatmentManagement.css';
+import {
+  Box,
+  Button,
+  Typography,
+  TextField,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Alert,
+  CircularProgress,
+  Card,
+  CardContent,
+  Grid,
+  Chip,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel,
+  Collapse,
+  Divider,
+} from '@mui/material';
+import {
+  ArrowBack as ArrowBackIcon,
+  Person as PersonIcon,
+  LocalHospital as TreatmentIcon,
+  Payment as PaymentIcon,
+  Add as AddIcon,
+  Cancel as CancelIcon,
+} from '@mui/icons-material';
+import Layout from '../../components/Layout';
+import { treatmentService, paymentService, clinicService } from '../../services/api';
+import { formatDate, formatCurrency } from '../../utils/formatters';
 
 function TreatmentDetail() {
   const { clinicId, treatmentId } = useParams();
@@ -17,28 +51,41 @@ function TreatmentDetail() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [userRole, setUserRole] = useState('');
 
-  useEffect(() => {
-    loadTreatmentData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [treatmentId]);
-
-  const loadTreatmentData = async () => {
+  const loadTreatmentData = useCallback(async () => {
     try {
       setLoading(true);
-      const treatmentResponse = await treatmentService.getTreatment(clinicId, treatmentId);
-      setTreatment(treatmentResponse.data);
+      const [treatmentResponse, paymentsResponse, membersResponse] = await Promise.all([
+        treatmentService.getTreatment(clinicId, treatmentId),
+        paymentService.getTreatmentPayments(treatmentId),
+        clinicService.getClinicMembers(clinicId),
+      ]);
 
-      const paymentsResponse = await paymentService.getTreatmentPayments(treatmentId);
+      setTreatment(treatmentResponse.data);
       setPayments(paymentsResponse.data);
+
+      // Determine user's role
+      const storedUser = JSON.parse(localStorage.getItem('user'));
+      const currentMember = membersResponse.data.find(m => m.id === storedUser.id);
+      setUserRole(currentMember?.role || '');
 
       setError('');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to load treatment data');
+      setError(err.response?.data?.message || 'Không thể tải thông tin điều trị');
     } finally {
       setLoading(false);
     }
-  };
+  }, [clinicId, treatmentId]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+    loadTreatmentData();
+  }, [loadTreatmentData, navigate]);
 
   const handleAddPayment = async (e) => {
     e.preventDefault();
@@ -53,7 +100,7 @@ function TreatmentDetail() {
       });
       loadTreatmentData();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to add payment');
+      setError(err.response?.data?.message || 'Không thể thêm thanh toán');
     }
   };
 
@@ -64,177 +111,330 @@ function TreatmentDetail() {
     });
   };
 
+  const getPaymentStatusLabel = (status) => {
+    const statusMap = {
+      'paid': 'Đã thanh toán',
+      'partial': 'Thanh toán một phần',
+      'unpaid': 'Chưa thanh toán'
+    };
+    return statusMap[status] || status;
+  };
+
+  const getPaymentStatusColor = (status) => {
+    const colorMap = {
+      'paid': 'success',
+      'partial': 'warning',
+      'unpaid': 'error'
+    };
+    return colorMap[status] || 'default';
+  };
+
+  const getPaymentMethodLabel = (method) => {
+    const methodMap = {
+      'cash': 'Tiền mặt',
+      'card': 'Thẻ',
+      'bank_transfer': 'Chuyển khoản',
+      'insurance': 'Bảo hiểm',
+      'other': 'Khác'
+    };
+    return methodMap[method] || method;
+  };
+
   if (loading) {
-    return <div className="loading">Loading treatment details...</div>;
+    return (
+      <Layout showClinicMenu clinicId={clinicId} userRole={userRole}>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+          <CircularProgress />
+        </Box>
+      </Layout>
+    );
   }
 
   if (error && !treatment) {
-    return <div className="error-message">{error}</div>;
+    return (
+      <Layout showClinicMenu clinicId={clinicId} userRole={userRole}>
+        <Alert severity="error">{error}</Alert>
+      </Layout>
+    );
   }
 
   if (!treatment) {
-    return <div className="error-message">Treatment not found</div>;
+    return (
+      <Layout showClinicMenu clinicId={clinicId} userRole={userRole}>
+        <Alert severity="error">Không tìm thấy thông tin điều trị</Alert>
+      </Layout>
+    );
   }
 
   return (
-    <div className="treatment-detail">
-      <div className="header">
-        <h2>Treatment Details</h2>
-        <div className="actions">
-          <button onClick={() => navigate(`/clinics/${clinicId}/treatments`)}>
-            Back to Treatments
-          </button>
-          <button onClick={() => navigate(`/clinics/${clinicId}/patients/${treatment.patientId}`)}>
-            View Patient
-          </button>
-        </div>
-      </div>
-
-      {error && <div className="error-message">{error}</div>}
-
-      <div className="treatment-info-card">
-        <h3>Treatment Information</h3>
-        <div className="info-grid">
-          <div className="info-item">
-            <label>Patient:</label>
-            <span>{treatment.patientName}</span>
-          </div>
-          <div className="info-item">
-            <label>Doctor:</label>
-            <span>{treatment.doctorName}</span>
-          </div>
-          <div className="info-item">
-            <label>Date:</label>
-            <span>{treatment.date}</span>
-          </div>
-          <div className="info-item">
-            <label>Total Payment:</label>
-            <span>${treatment.totalPayment}</span>
-          </div>
-          <div className="info-item">
-            <label>Paid Amount:</label>
-            <span>${treatment.paidAmount}</span>
-          </div>
-          <div className="info-item">
-            <label>Remaining Balance:</label>
-            <span className={treatment.remainingBalance > 0 ? 'text-danger' : ''}>
-              ${treatment.remainingBalance}
-            </span>
-          </div>
-          <div className="info-item">
-            <label>Payment Status:</label>
-            <span className={`status ${treatment.paymentStatus}`}>
-              {treatment.paymentStatus}
-            </span>
-          </div>
-          {treatment.description && (
-            <div className="info-item full-width">
-              <label>Description:</label>
-              <span className="note-text">{treatment.description}</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="payment-section">
-        <div className="section-header">
-          <h3>Payment History</h3>
-          {treatment.remainingBalance > 0 && (
-            <button 
-              onClick={() => setShowPaymentForm(!showPaymentForm)} 
-              className="primary"
+    <Layout showClinicMenu clinicId={clinicId} userRole={userRole}>
+      <Box>
+        <Box display="flex" alignItems="center" justifyContent="space-between" mb={3}>
+          <Box display="flex" alignItems="center">
+            <TreatmentIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
+            <Typography variant="h4" component="h1" fontWeight="bold">
+              Chi tiết Điều trị
+            </Typography>
+          </Box>
+          <Box display="flex" gap={1}>
+            <Button
+              variant="outlined"
+              startIcon={<ArrowBackIcon />}
+              onClick={() => navigate(`/clinics/${clinicId}/treatments`)}
             >
-              {showPaymentForm ? 'Cancel' : 'Add Payment'}
-            </button>
-          )}
-        </div>
+              Quay lại danh sách
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<PersonIcon />}
+              onClick={() => navigate(`/clinics/${clinicId}/patients/${treatment.patientId}`)}
+            >
+              Xem bệnh nhân
+            </Button>
+          </Box>
+        </Box>
 
-        {showPaymentForm && (
-          <form onSubmit={handleAddPayment} className="payment-form">
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="amount">Amount *</label>
-                <input
-                  type="number"
-                  id="amount"
-                  name="amount"
-                  value={paymentForm.amount}
-                  onChange={handlePaymentFormChange}
-                  step="0.01"
-                  min="0.01"
-                  max={Math.max(0, treatment.remainingBalance)}
-                  required
-                  disabled={treatment.remainingBalance <= 0}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="paymentDate">Payment Date *</label>
-                <input
-                  type="date"
-                  id="paymentDate"
-                  name="paymentDate"
-                  value={paymentForm.paymentDate}
-                  onChange={handlePaymentFormChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="paymentMethod">Payment Method</label>
-                <select
-                  id="paymentMethod"
-                  name="paymentMethod"
-                  value={paymentForm.paymentMethod}
-                  onChange={handlePaymentFormChange}
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
+            {error}
+          </Alert>
+        )}
+
+        {/* Treatment Information */}
+        <Card sx={{ mb: 3 }}>
+          <CardContent>
+            <Typography variant="h6" component="h2" gutterBottom color="primary">
+              Thông tin Điều trị
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={4}>
+                <Typography variant="body2" color="text.secondary">
+                  Bệnh nhân
+                </Typography>
+                <Typography variant="body1" fontWeight="medium">
+                  {treatment.patientName}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Typography variant="body2" color="text.secondary">
+                  Bác sĩ
+                </Typography>
+                <Typography variant="body1" fontWeight="medium">
+                  {treatment.doctorName}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Typography variant="body2" color="text.secondary">
+                  Ngày điều trị
+                </Typography>
+                <Typography variant="body1" fontWeight="medium">
+                  {treatment.date ? formatDate(treatment.date) : 'N/A'}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Typography variant="body2" color="text.secondary">
+                  Tổng chi phí
+                </Typography>
+                <Typography variant="body1" fontWeight="medium" color="info.main">
+                  {treatment.totalPayment?.toLocaleString('vi-VN') || '0'} VND
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Typography variant="body2" color="text.secondary">
+                  Đã thanh toán
+                </Typography>
+                <Typography variant="body1" fontWeight="medium" color="success.main">
+                  {treatment.paidAmount?.toLocaleString('vi-VN') || '0'} VND
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Typography variant="body2" color="text.secondary">
+                  Còn nợ
+                </Typography>
+                <Typography 
+                  variant="body1" 
+                  fontWeight="medium" 
+                  color={treatment.remainingBalance > 0 ? "error.main" : "success.main"}
                 >
-                  <option value="cash">Cash</option>
-                  <option value="card">Card</option>
-                  <option value="bank_transfer">Bank Transfer</option>
-                  <option value="insurance">Insurance</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-            </div>
-            <div className="form-group">
-              <label htmlFor="notes">Notes</label>
-              <input
-                type="text"
-                id="notes"
-                name="notes"
-                value={paymentForm.notes}
-                onChange={handlePaymentFormChange}
-                placeholder="Optional payment notes"
-              />
-            </div>
-            <button type="submit" className="primary">Add Payment</button>
-          </form>
-        )}
+                  {treatment.remainingBalance?.toLocaleString('vi-VN') || '0'} VND
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Typography variant="body2" color="text.secondary">
+                  Trạng thái thanh toán
+                </Typography>
+                <Box mt={1}>
+                  <Chip
+                    label={getPaymentStatusLabel(treatment.paymentStatus)}
+                    color={getPaymentStatusColor(treatment.paymentStatus)}
+                    size="small"
+                  />
+                </Box>
+              </Grid>
+              {treatment.description && (
+                <Grid item xs={12}>
+                  <Typography variant="body2" color="text.secondary">
+                    Mô tả điều trị
+                  </Typography>
+                  <Typography variant="body1" sx={{ mt: 1 }}>
+                    {treatment.description}
+                  </Typography>
+                </Grid>
+              )}
+            </Grid>
+          </CardContent>
+        </Card>
 
-        {payments.length === 0 ? (
-          <p>No payments recorded yet.</p>
-        ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Amount</th>
-                <th>Payment Method</th>
-                <th>Notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {payments.map(payment => (
-                <tr key={payment.id}>
-                  <td>{payment.paymentDate}</td>
-                  <td>${payment.amount}</td>
-                  <td>{payment.paymentMethod || 'N/A'}</td>
-                  <td>{payment.notes || '-'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-    </div>
+        {/* Payment Section */}
+        <Card>
+          <CardContent>
+            <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+              <Box display="flex" alignItems="center">
+                <PaymentIcon sx={{ mr: 1, color: 'primary.main' }} />
+                <Typography variant="h6" component="h2" color="primary">
+                  Lịch sử Thanh toán
+                </Typography>
+              </Box>
+              {treatment.remainingBalance > 0 && (
+                <Button
+                  variant={showPaymentForm ? "outlined" : "contained"}
+                  startIcon={showPaymentForm ? <CancelIcon /> : <AddIcon />}
+                  onClick={() => setShowPaymentForm(!showPaymentForm)}
+                  color={showPaymentForm ? "secondary" : "primary"}
+                >
+                  {showPaymentForm ? 'Hủy' : 'Thêm thanh toán'}
+                </Button>
+              )}
+            </Box>
+
+            <Collapse in={showPaymentForm}>
+              <Card variant="outlined" sx={{ mb: 3 }}>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    Thêm thanh toán mới
+                  </Typography>
+                  <Box component="form" onSubmit={handleAddPayment}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} sm={6} md={3}>
+                        <TextField
+                          fullWidth
+                          label="Số tiền *"
+                          name="amount"
+                          type="number"
+                          value={paymentForm.amount}
+                          onChange={handlePaymentFormChange}
+                          inputProps={{
+                            step: "1",
+                            min: "1",
+                            max: Math.max(0, treatment.remainingBalance)
+                          }}
+                          required
+                          disabled={treatment.remainingBalance <= 0}
+                          size="small"
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6} md={3}>
+                        <TextField
+                          fullWidth
+                          label="Ngày thanh toán *"
+                          name="paymentDate"
+                          type="date"
+                          value={paymentForm.paymentDate}
+                          onChange={handlePaymentFormChange}
+                          InputLabelProps={{ shrink: true }}
+                          required
+                          size="small"
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6} md={3}>
+                        <FormControl fullWidth size="small">
+                          <InputLabel>Phương thức thanh toán</InputLabel>
+                          <Select
+                            name="paymentMethod"
+                            value={paymentForm.paymentMethod}
+                            onChange={handlePaymentFormChange}
+                            label="Phương thức thanh toán"
+                          >
+                            <MenuItem value="cash">Tiền mặt</MenuItem>
+                            <MenuItem value="card">Thẻ</MenuItem>
+                            <MenuItem value="bank_transfer">Chuyển khoản</MenuItem>
+                            <MenuItem value="insurance">Bảo hiểm</MenuItem>
+                            <MenuItem value="other">Khác</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                      <Grid item xs={12} sm={6} md={3}>
+                        <TextField
+                          fullWidth
+                          label="Ghi chú"
+                          name="notes"
+                          value={paymentForm.notes}
+                          onChange={handlePaymentFormChange}
+                          placeholder="Ghi chú về thanh toán"
+                          size="small"
+                        />
+                      </Grid>
+                    </Grid>
+                    <Box mt={2}>
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        startIcon={<AddIcon />}
+                      >
+                        Thêm thanh toán
+                      </Button>
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Collapse>
+
+            <Divider sx={{ my: 2 }} />
+
+            {payments.length === 0 ? (
+              <Typography variant="body1" color="text.secondary" textAlign="center" py={4}>
+                Chưa có thanh toán nào được ghi nhận.
+              </Typography>
+            ) : (
+              <TableContainer component={Paper} variant="outlined">
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell><strong>Ngày</strong></TableCell>
+                      <TableCell><strong>Số tiền</strong></TableCell>
+                      <TableCell><strong>Phương thức</strong></TableCell>
+                      <TableCell><strong>Ghi chú</strong></TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {payments.map(payment => (
+                      <TableRow key={payment.id} hover>
+                        <TableCell>
+                          {payment.paymentDate ? formatDate(payment.paymentDate) : 'N/A'}
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2" fontWeight="medium" color="success.main">
+                            {payment.amount?.toLocaleString('vi-VN') || '0'} VND
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={getPaymentMethodLabel(payment.paymentMethod)}
+                            size="small"
+                            variant="outlined"
+                          />
+                        </TableCell>
+                        <TableCell>{payment.notes || '-'}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </CardContent>
+        </Card>
+      </Box>
+    </Layout>
   );
 }
 

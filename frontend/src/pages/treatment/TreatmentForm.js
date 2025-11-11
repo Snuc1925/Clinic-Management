@@ -1,7 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { treatmentService, patientService, appointmentService } from '../../services/api';
-import './TreatmentManagement.css';
+import {
+  Box,
+  Button,
+  Typography,
+  TextField,
+  Alert,
+  CircularProgress,
+  Card,
+  CardContent,
+  Grid,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel,
+  Checkbox,
+  FormControlLabel,
+  Collapse,
+  Divider,
+} from '@mui/material';
+import {
+  ArrowBack as ArrowBackIcon,
+  Save as SaveIcon,
+  Cancel as CancelIcon,
+  LocalHospital as TreatmentIcon,
+  Add as AddIcon,
+  Event as AppointmentIcon,
+} from '@mui/icons-material';
+import Layout from '../../components/Layout';
+import { treatmentService, patientService, appointmentService, clinicService } from '../../services/api';
 
 function TreatmentForm() {
   const { clinicId } = useParams();
@@ -24,20 +51,35 @@ function TreatmentForm() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [userRole, setUserRole] = useState('');
+
+  const loadPatientsAndRole = useCallback(async () => {
+    try {
+      const [patientsResponse, membersResponse] = await Promise.all([
+        patientService.getClinicPatients(clinicId),
+        clinicService.getClinicMembers(clinicId),
+      ]);
+
+      setPatients(patientsResponse.data);
+
+      // Determine user's role
+      const storedUser = JSON.parse(localStorage.getItem('user'));
+      const currentMember = membersResponse.data.find(m => m.id === storedUser.id);
+      setUserRole(currentMember?.role || '');
+
+    } catch (err) {
+      setError('Không thể tải danh sách bệnh nhân');
+    }
+  }, [clinicId]);
 
   useEffect(() => {
-    loadPatients();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const loadPatients = async () => {
-    try {
-      const response = await patientService.getClinicPatients(clinicId);
-      setPatients(response.data);
-    } catch (err) {
-      setError('Failed to load patients');
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
     }
-  };
+    loadPatientsAndRole();
+  }, [loadPatientsAndRole, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -52,14 +94,14 @@ function TreatmentForm() {
         await appointmentService.createAppointment(clinicId, {
           patientId: formData.patientId,
           appointmentDate: appointmentDate,
-          description: appointmentData.description || 'Follow-up appointment',
+          description: appointmentData.description || 'Lịch hẹn tái khám',
           status: 'scheduled'
         });
       }
 
       navigate(`/clinics/${clinicId}/treatments/${treatmentResponse.data.id}`);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create treatment');
+      setError(err.response?.data?.message || 'Không thể tạo điều trị mới');
       setLoading(false);
     }
   };
@@ -97,141 +139,240 @@ function TreatmentForm() {
     });
   };
 
+  const getIntervalLabel = (interval) => {
+    const intervalMap = {
+      '1week': '1 Tuần',
+      '2weeks': '2 Tuần',
+      '1month': '1 Tháng',
+      '3months': '3 Tháng',
+      '6months': '6 Tháng',
+      'custom': 'Tùy chỉnh ngày'
+    };
+    return intervalMap[interval] || interval;
+  };
+
+  if (loading && patients.length === 0) {
+    return (
+      <Layout showClinicMenu clinicId={clinicId} userRole={userRole}>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+          <CircularProgress />
+        </Box>
+      </Layout>
+    );
+  }
+
   return (
-    <div className="treatment-form-container">
-      <div className="header">
-        <h2>Create New Treatment</h2>
-        <button onClick={() => navigate(`/clinics/${clinicId}/treatments`)}>
-          Back to Treatments
-        </button>
-      </div>
-
-      {error && <div className="error-message">{error}</div>}
-
-      <form onSubmit={handleSubmit} className="treatment-form">
-        <div className="form-group">
-          <label htmlFor="patientId">Patient *</label>
-          <select
-            id="patientId"
-            name="patientId"
-            value={formData.patientId}
-            onChange={handleChange}
-            required
+    <Layout showClinicMenu clinicId={clinicId} userRole={userRole}>
+      <Box>
+        <Box display="flex" alignItems="center" justifyContent="space-between" mb={3}>
+          <Box display="flex" alignItems="center">
+            <AddIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
+            <Typography variant="h4" component="h1" fontWeight="bold">
+              Tạo Điều trị mới
+            </Typography>
+          </Box>
+          <Button
+            variant="outlined"
+            startIcon={<ArrowBackIcon />}
+            onClick={() => navigate(`/clinics/${clinicId}/treatments`)}
           >
-            <option value="">Select a patient</option>
-            {patients.map(patient => (
-              <option key={patient.id} value={patient.id}>
-                {patient.fullName} {patient.phone ? `- ${patient.phone}` : ''}
-              </option>
-            ))}
-          </select>
-        </div>
+            Quay lại danh sách
+          </Button>
+        </Box>
 
-        <div className="form-group">
-          <label htmlFor="date">Treatment Date *</label>
-          <input
-            type="date"
-            id="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
+            {error}
+          </Alert>
+        )}
 
-        <div className="form-group">
-          <label htmlFor="totalPayment">Total Payment Amount *</label>
-          <input
-            type="number"
-            id="totalPayment"
-            name="totalPayment"
-            value={formData.totalPayment}
-            onChange={handleChange}
-            step="0.01"
-            min="0"
-            required
-          />
-        </div>
+        <Card>
+          <CardContent>
+            <Box component="form" onSubmit={handleSubmit}>
+              <Grid container spacing={3}>
+                {/* Patient Selection */}
+                <Grid item xs={12}>
+                  <Typography variant="h6" component="h2" gutterBottom color="primary">
+                    <TreatmentIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                    Thông tin Điều trị
+                  </Typography>
+                </Grid>
 
-        <div className="form-group">
-          <label htmlFor="description">Treatment Description</label>
-          <textarea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            rows="5"
-            placeholder="Describe the treatment, procedures performed, medications prescribed, etc."
-          />
-        </div>
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth required>
+                    <InputLabel>Bệnh nhân</InputLabel>
+                    <Select
+                      name="patientId"
+                      value={formData.patientId}
+                      onChange={handleChange}
+                      label="Bệnh nhân"
+                    >
+                      <MenuItem value="">
+                        <em>Chọn bệnh nhân</em>
+                      </MenuItem>
+                      {patients.map(patient => (
+                        <MenuItem key={patient.id} value={patient.id}>
+                          {patient.fullName} {patient.phone ? `- ${patient.phone}` : ''}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
 
-        <div className="appointment-section">
-          <label className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={showAppointment}
-              onChange={(e) => setShowAppointment(e.target.checked)}
-            />
-            Schedule follow-up appointment
-          </label>
-
-          {showAppointment && (
-            <div className="appointment-fields">
-              <div className="form-group">
-                <label htmlFor="interval">Appointment Interval</label>
-                <select
-                  id="interval"
-                  name="interval"
-                  value={appointmentData.interval}
-                  onChange={handleAppointmentChange}
-                >
-                  <option value="1week">1 Week</option>
-                  <option value="2weeks">2 Weeks</option>
-                  <option value="1month">1 Month</option>
-                  <option value="3months">3 Months</option>
-                  <option value="6months">6 Months</option>
-                  <option value="custom">Custom Date</option>
-                </select>
-              </div>
-
-              {appointmentData.interval === 'custom' && (
-                <div className="form-group">
-                  <label htmlFor="customDate">Custom Appointment Date</label>
-                  <input
-                    type="datetime-local"
-                    id="customDate"
-                    name="customDate"
-                    value={appointmentData.customDate}
-                    onChange={handleAppointmentChange}
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Ngày điều trị *"
+                    name="date"
+                    type="date"
+                    value={formData.date}
+                    onChange={handleChange}
+                    InputLabelProps={{ shrink: true }}
+                    required
                   />
-                </div>
-              )}
+                </Grid>
 
-              <div className="form-group">
-                <label htmlFor="appointmentDescription">Appointment Description</label>
-                <input
-                  type="text"
-                  id="appointmentDescription"
-                  name="description"
-                  value={appointmentData.description}
-                  onChange={handleAppointmentChange}
-                  placeholder="e.g., Follow-up checkup"
-                />
-              </div>
-            </div>
-          )}
-        </div>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Tổng chi phí *"
+                    name="totalPayment"
+                    type="number"
+                    value={formData.totalPayment}
+                    onChange={handleChange}
+                    inputProps={{
+                      step: "1",
+                      min: "0"
+                    }}
+                    InputProps={{
+                      endAdornment: <Typography variant="body2" color="text.secondary">VND</Typography>
+                    }}
+                    required
+                  />
+                </Grid>
 
-        <div className="form-actions">
-          <button type="button" onClick={() => navigate(`/clinics/${clinicId}/treatments`)}>
-            Cancel
-          </button>
-          <button type="submit" disabled={loading} className="primary">
-            {loading ? 'Creating...' : 'Create Treatment'}
-          </button>
-        </div>
-      </form>
-    </div>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Mô tả điều trị"
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    multiline
+                    rows={4}
+                    placeholder="Mô tả về điều trị, quy trình thực hiện, thuốc được kê đơn, v.v..."
+                  />
+                </Grid>
+
+                {/* Appointment Section */}
+                <Grid item xs={12}>
+                  <Divider sx={{ my: 2 }} />
+                  <Box display="flex" alignItems="center" mb={2}>
+                    <AppointmentIcon sx={{ mr: 1, color: 'primary.main' }} />
+                    <Typography variant="h6" component="h2" color="primary">
+                      Lịch hẹn tái khám
+                    </Typography>
+                  </Box>
+                  
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={showAppointment}
+                        onChange={(e) => setShowAppointment(e.target.checked)}
+                        color="primary"
+                      />
+                    }
+                    label="Lên lịch hẹn tái khám"
+                  />
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Collapse in={showAppointment}>
+                    <Card variant="outlined" sx={{ p: 2 }}>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6}>
+                          <FormControl fullWidth size="small">
+                            <InputLabel>Khoảng thời gian</InputLabel>
+                            <Select
+                              name="interval"
+                              value={appointmentData.interval}
+                              onChange={handleAppointmentChange}
+                              label="Khoảng thời gian"
+                            >
+                              <MenuItem value="1week">1 Tuần</MenuItem>
+                              <MenuItem value="2weeks">2 Tuần</MenuItem>
+                              <MenuItem value="1month">1 Tháng</MenuItem>
+                              <MenuItem value="3months">3 Tháng</MenuItem>
+                              <MenuItem value="6months">6 Tháng</MenuItem>
+                              <MenuItem value="custom">Tùy chỉnh ngày</MenuItem>
+                            </Select>
+                          </FormControl>
+                        </Grid>
+
+                        {appointmentData.interval === 'custom' && (
+                          <Grid item xs={12} sm={6}>
+                            <TextField
+                              fullWidth
+                              label="Ngày hẹn tùy chỉnh"
+                              name="customDate"
+                              type="datetime-local"
+                              value={appointmentData.customDate}
+                              onChange={handleAppointmentChange}
+                              InputLabelProps={{ shrink: true }}
+                              size="small"
+                            />
+                          </Grid>
+                        )}
+
+                        <Grid item xs={12}>
+                          <TextField
+                            fullWidth
+                            label="Mô tả lịch hẹn"
+                            name="description"
+                            value={appointmentData.description}
+                            onChange={handleAppointmentChange}
+                            placeholder="Ví dụ: Kiểm tra tái khám"
+                            size="small"
+                          />
+                        </Grid>
+
+                        {appointmentData.interval !== 'custom' && (
+                          <Grid item xs={12}>
+                            <Alert severity="info" sx={{ mt: 1 }}>
+                              Lịch hẹn sẽ được tự động tính toán sau ngày điều trị{' '}
+                              <strong>{getIntervalLabel(appointmentData.interval).toLowerCase()}</strong>
+                            </Alert>
+                          </Grid>
+                        )}
+                      </Grid>
+                    </Card>
+                  </Collapse>
+                </Grid>
+              </Grid>
+
+              <Box display="flex" justifyContent="flex-end" gap={2} mt={4}>
+                <Button
+                  variant="outlined"
+                  startIcon={<CancelIcon />}
+                  onClick={() => navigate(`/clinics/${clinicId}/treatments`)}
+                  disabled={loading}
+                >
+                  Hủy bỏ
+                </Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  startIcon={<SaveIcon />}
+                  disabled={loading}
+                >
+                  {loading ? 'Đang tạo...' : 'Tạo điều trị'}
+                </Button>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
+    </Layout>
   );
 }
 
