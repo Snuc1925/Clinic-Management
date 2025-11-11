@@ -3,6 +3,7 @@ package com.hust.clinic.controller;
 import com.hust.clinic.dto.JwtResponse;
 import com.hust.clinic.dto.LoginRequest;
 import com.hust.clinic.dto.RegisterRequest;
+import com.hust.clinic.dto.UserResponse;
 import com.hust.clinic.entity.User;
 import com.hust.clinic.security.JwtUtil;
 import com.hust.clinic.service.UserService;
@@ -44,11 +45,11 @@ public class AuthController {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String jwt = jwtUtil.generateToken(userDetails);
 
+        UserResponse user = userService.getUserByPhone(userDetails.getUsername());
+
         return ResponseEntity.ok(new JwtResponse(
                 jwt,
-                null,
-                userDetails.getUsername(),
-                null
+                user.getId()
         ));
     }
 

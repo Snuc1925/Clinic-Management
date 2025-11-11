@@ -116,7 +116,8 @@ function Profile() {
 
         <Card>
           <CardContent>
-            <form onSubmit={handleSubmit}>
+            {/* Form chỉ bao bọc các input */}
+            <form id="profile-form" onSubmit={handleSubmit}>
               <Grid container spacing={3}>
                 <Grid item xs={12} md={6}>
                   <TextField
@@ -162,37 +163,43 @@ function Profile() {
                     InputLabelProps={{ shrink: true }}
                   />
                 </Grid>
-                <Grid item xs={12}>
-                  <Box display="flex" gap={2}>
-                    {!editing ? (
-                      <Button variant="contained" onClick={() => setEditing(true)}>
-                        Chỉnh sửa
-                      </Button>
-                    ) : (
-                      <>
-                        <Button variant="contained" type="submit" disabled={loading}>
-                          {loading ? 'Đang lưu...' : 'Lưu'}
-                        </Button>
-                        <Button
-                          variant="outlined"
-                          onClick={() => {
-                            setEditing(false);
-                            setFormData({
-                              fullName: user.fullName || '',
-                              phone: user.phone || '',
-                              address: user.address || '',
-                              dateOfBirth: user.dateOfBirth || '',
-                            });
-                          }}
-                        >
-                          Hủy
-                        </Button>
-                      </>
-                    )}
-                  </Box>
-                </Grid>
               </Grid>
             </form>
+
+            {/* Đặt các nút điều khiển ở bên ngoài form */}
+            <Box display="flex" gap={2} mt={3}> {/* Thêm khoảng cách với form */}
+              {!editing ? (
+                <Button variant="contained" onClick={() => setEditing(true)}>
+                  Chỉnh sửa
+                </Button>
+              ) : (
+                <>
+                  {/* Nút Lưu sẽ submit form thông qua thuộc tính 'form' */}
+                  <Button
+                    variant="contained"
+                    type="submit"
+                    form="profile-form" // Thuộc tính này liên kết nút với form
+                    disabled={loading}
+                  >
+                    {loading ? 'Đang lưu...' : 'Lưu'}
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={() => {
+                      setEditing(false);
+                      setFormData({
+                        fullName: user.fullName || '',
+                        phone: user.phone || '',
+                        address: user.address || '',
+                        dateOfBirth: user.dateOfBirth || '',
+                      });
+                    }}
+                  >
+                    Hủy
+                  </Button>
+                </>
+              )}
+            </Box>
           </CardContent>
         </Card>
       </Box>

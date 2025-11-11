@@ -51,6 +51,18 @@ public class UserService {
         );
     }
 
+    public UserResponse getUserByPhone(String phone) {
+        User user = userRepository.findByPhone(phone)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return new UserResponse(
+                user.getId(),
+                user.getPhone(),
+                user.getFullName(),
+                user.getAddress(),
+                user.getDateOfBirth()
+        );
+    }
+
     public UserResponse updateUser(Long id, User userDetails) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));

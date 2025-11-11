@@ -40,6 +40,16 @@ public class ClinicController {
         return ResponseEntity.ok(clinicService.getUserClinics(userId));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getClinicById(@PathVariable Long id) {
+        try {
+            ClinicDetailResponse clinic = clinicService.getClinicById(id);
+            return ResponseEntity.ok(clinic);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("{\"message\": \"" + e.getMessage() + "\"}");
+        }
+    }
+
     @PostMapping("/{code}/join")
     public ResponseEntity<?> joinClinic(@PathVariable String code,
                                        Authentication authentication) {

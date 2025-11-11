@@ -1,5 +1,6 @@
 package com.hust.clinic.service;
 
+import com.hust.clinic.dto.ClinicDetailResponse;
 import com.hust.clinic.dto.ClinicMemberResponse;
 import com.hust.clinic.dto.ClinicResponse;
 import com.hust.clinic.entity.Clinic;
@@ -86,6 +87,17 @@ public class ClinicService {
                     );
                 })
                 .collect(Collectors.toList());
+    }
+
+    public ClinicDetailResponse getClinicById(Long clinicId) {
+        Clinic clinic = clinicRepository.findById(clinicId)
+                .orElseThrow(() -> new RuntimeException("Clinic not found for membership"));
+        return new ClinicDetailResponse(
+                clinic.getId(),
+                clinic.getName(),
+                clinic.getCode(),
+                clinic.getCreatedAt()
+        );
     }
 
     @Transactional
