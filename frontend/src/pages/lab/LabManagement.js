@@ -44,7 +44,6 @@ import {
   Search as SearchIcon,
   Phone as PhoneIcon,
   LocationOn as LocationIcon,
-  Visibility as ViewIcon,
 } from '@mui/icons-material';
 import Layout from '../../components/Layout';
 import { labService, clinicService } from '../../services/api';

@@ -53,6 +53,7 @@ function LabOrderForm() {
       return;
     }
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clinicId, labOrderId, navigate]);
 
   const loadData = async () => {
