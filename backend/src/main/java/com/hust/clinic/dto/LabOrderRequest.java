@@ -8,6 +8,8 @@ public class LabOrderRequest {
     private Long labPartnerId;
     private BigDecimal price;
     private String description;
+    private String status;
+    private LocalDate deliveryDate;
 
     public LabOrderRequest() {
     }
@@ -49,5 +51,21 @@ public class LabOrderRequest {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public LocalDate getDeliveryDate() {
+        return deliveryDate;
+    }
+
+    public void setDeliveryDate(LocalDate deliveryDate) {
+        this.deliveryDate = deliveryDate;
     }
 }

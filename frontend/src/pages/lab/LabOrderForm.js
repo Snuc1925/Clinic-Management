@@ -119,15 +119,13 @@ function LabOrderForm() {
         labPartnerId: parseInt(formData.labPartnerId),
         description: formData.description,
         price: parseFloat(formData.price),
+        status: formData.status,
+        deliveryDate: formData.deliveryDate || null,
       };
 
       if (labOrderId) {
-        // Update existing order - update both main fields and status/delivery
+        // Update existing order with all fields in one call
         await labService.updateLabOrder(clinicId, labOrderId, submitData);
-        await labService.updateLabOrderStatus(labOrderId, {
-          status: formData.status,
-          deliveryDate: formData.deliveryDate || null,
-        });
       } else {
         // Create new order
         await labService.createLabOrder(clinicId, submitData);

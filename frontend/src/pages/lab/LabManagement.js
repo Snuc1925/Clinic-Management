@@ -170,6 +170,10 @@ function LabManagement() {
   };
 
   // Lab Order functions
+  const handleEditOrder = (orderId) => {
+    navigate(`/clinics/${clinicId}/lab-orders/${orderId}/edit`);
+  };
+
   const getStatusLabel = (status) => {
     const statusMap = {
       'ORDERED': 'Đã đặt',
@@ -414,7 +418,7 @@ function LabManagement() {
                           '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.04) },
                           cursor: 'pointer'
                         }}
-                        onClick={() => navigate(`/clinics/${clinicId}/lab-orders/${order.id}/edit`)}
+                        onClick={() => handleEditOrder(order.id)}
                       >
                         <TableCell sx={{ py: 2 }}>
                           <Typography variant="body2" fontWeight="medium">
@@ -461,7 +465,7 @@ function LabManagement() {
                               size="small"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                navigate(`/clinics/${clinicId}/lab-orders/${order.id}/edit`);
+                                handleEditOrder(order.id);
                               }}
                               sx={{
                                 bgcolor: alpha(theme.palette.primary.main, 0.1),

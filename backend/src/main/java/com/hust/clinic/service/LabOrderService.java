@@ -95,16 +95,26 @@ public class LabOrderService {
         LabOrder labOrder = labOrderRepository.findById(labOrderId)
                 .orElseThrow(() -> new RuntimeException("Lab order not found"));
 
+        // Verify treatment belongs to clinic
         Treatment treatment = treatmentRepository.findByIdAndClinicId(request.getTreatmentId(), clinicId)
                 .orElseThrow(() -> new RuntimeException("Treatment not found"));
 
-        LabPartner labPartner = labPartnerRepository.findByIdAndClinicId(request.getLabPartnerId(), clinicId)
+        // Verify lab partner belongs to clinic
+        labPartnerRepository.findByIdAndClinicId(request.getLabPartnerId(), clinicId)
                 .orElseThrow(() -> new RuntimeException("Lab partner not found"));
 
         labOrder.setTreatmentId(request.getTreatmentId());
         labOrder.setLabPartnerId(request.getLabPartnerId());
         labOrder.setPrice(request.getPrice());
         labOrder.setDescription(request.getDescription());
+        
+        // Update status and delivery date if provided
+        if (request.getStatus() != null) {
+            labOrder.setStatus(request.getStatus());
+        }
+        if (request.getDeliveryDate() != null) {
+            labOrder.setDeliveryDate(request.getDeliveryDate());
+        }
 
         LabOrder updated = labOrderRepository.save(labOrder);
         return mapToResponse(updated);

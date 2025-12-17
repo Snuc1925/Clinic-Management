@@ -160,6 +160,23 @@ function ItemBatchList() {
 
   const handleExportSubmit = async () => {
     try {
+      // Validate inputs
+      for (let i = 0; i < exportItems.length; i++) {
+        const item = exportItems[i];
+        if (!item.itemId || !item.quantity) {
+          setError('Vui lòng điền đầy đủ thông tin cho tất cả các vật tư');
+          return;
+        }
+        if (isNaN(parseInt(item.itemId)) || isNaN(parseInt(item.quantity))) {
+          setError('Thông tin vật tư hoặc số lượng không hợp lệ');
+          return;
+        }
+        if (parseInt(item.quantity) <= 0) {
+          setError('Số lượng phải lớn hơn 0');
+          return;
+        }
+      }
+
       const exportData = {
         exports: exportItems.map(item => ({
           itemId: parseInt(item.itemId),
