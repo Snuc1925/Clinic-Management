@@ -134,4 +134,87 @@ export const appointmentService = {
     },
 };
 
+export const inventoryService = {
+    // Item management
+    createItem: (clinicId, itemData) => {
+        return api.post(`/clinics/${clinicId}/items`, itemData);
+    },
+    getClinicItems: (clinicId) => {
+        return api.get(`/clinics/${clinicId}/items`);
+    },
+    getItem: (clinicId, itemId) => {
+        return api.get(`/clinics/${clinicId}/items/${itemId}`);
+    },
+    updateItem: (clinicId, itemId, itemData) => {
+        return api.put(`/clinics/${clinicId}/items/${itemId}`, itemData);
+    },
+    deleteItem: (clinicId, itemId) => {
+        return api.delete(`/clinics/${clinicId}/items/${itemId}`);
+    },
+    getLowStockItems: (clinicId) => {
+        return api.get(`/clinics/${clinicId}/items/low-stock`);
+    },
+    
+    // Batch management
+    importBatches: (clinicId, batchesData) => {
+        return api.post(`/clinics/${clinicId}/batches/import`, batchesData);
+    },
+    getItemBatches: (clinicId, itemId) => {
+        return api.get(`/clinics/${clinicId}/items/${itemId}/batches`);
+    },
+    getExpiringBatches: (clinicId, daysAhead = 30) => {
+        return api.get(`/clinics/${clinicId}/batches/expiring`, { params: { daysAhead } });
+    },
+    exportInventory: (clinicId, exportData) => {
+        return api.post(`/clinics/${clinicId}/batches/export`, exportData);
+    },
+    
+    // Transaction history
+    getClinicTransactions: (clinicId) => {
+        return api.get(`/clinics/${clinicId}/inventory/transactions`);
+    },
+    getTreatmentTransactions: (treatmentId) => {
+        return api.get(`/treatments/${treatmentId}/inventory/transactions`);
+    },
+};
+
+export const labService = {
+    // Lab partner management
+    createLabPartner: (clinicId, labPartnerData) => {
+        return api.post(`/clinics/${clinicId}/lab-partners`, labPartnerData);
+    },
+    getClinicLabPartners: (clinicId) => {
+        return api.get(`/clinics/${clinicId}/lab-partners`);
+    },
+    getLabPartner: (clinicId, labPartnerId) => {
+        return api.get(`/clinics/${clinicId}/lab-partners/${labPartnerId}`);
+    },
+    updateLabPartner: (clinicId, labPartnerId, labPartnerData) => {
+        return api.put(`/clinics/${clinicId}/lab-partners/${labPartnerId}`, labPartnerData);
+    },
+    deleteLabPartner: (clinicId, labPartnerId) => {
+        return api.delete(`/clinics/${clinicId}/lab-partners/${labPartnerId}`);
+    },
+    
+    // Lab order management
+    createLabOrder: (clinicId, labOrderData) => {
+        return api.post(`/clinics/${clinicId}/lab-orders`, labOrderData);
+    },
+    getClinicLabOrders: (clinicId) => {
+        return api.get(`/clinics/${clinicId}/lab-orders`);
+    },
+    getLabOrder: (labOrderId) => {
+        return api.get(`/lab-orders/${labOrderId}`);
+    },
+    getTreatmentLabOrders: (treatmentId) => {
+        return api.get(`/treatments/${treatmentId}/lab-orders`);
+    },
+    updateLabOrderStatus: (labOrderId, statusData) => {
+        return api.put(`/lab-orders/${labOrderId}/status`, statusData);
+    },
+    deleteLabOrder: (clinicId, labOrderId) => {
+        return api.delete(`/clinics/${clinicId}/lab-orders/${labOrderId}`);
+    },
+};
+
 export default api;

@@ -32,9 +32,11 @@ import {
   Payment as PaymentIcon,
   Add as AddIcon,
   Cancel as CancelIcon,
+  Science as LabIcon,
+  Inventory as InventoryIcon,
 } from '@mui/icons-material';
 import Layout from '../../components/Layout';
-import { treatmentService, paymentService, clinicService } from '../../services/api';
+import { treatmentService, paymentService, clinicService, labService, inventoryService } from '../../services/api';
 import { formatDate, formatCurrency } from '../../utils/formatters';
 
 function TreatmentDetail() {
@@ -42,6 +44,8 @@ function TreatmentDetail() {
   const navigate = useNavigate();
   const [treatment, setTreatment] = useState(null);
   const [payments, setPayments] = useState([]);
+  const [labOrders, setLabOrders] = useState([]);
+  const [inventoryTransactions, setInventoryTransactions] = useState([]);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [paymentForm, setPaymentForm] = useState({
     amount: '',
@@ -56,14 +60,18 @@ function TreatmentDetail() {
   const loadTreatmentData = useCallback(async () => {
     try {
       setLoading(true);
-      const [treatmentResponse, paymentsResponse, membersResponse] = await Promise.all([
+      const [treatmentResponse, paymentsResponse, membersResponse, labOrdersResponse, inventoryResponse] = await Promise.all([
         treatmentService.getTreatment(clinicId, treatmentId),
         paymentService.getTreatmentPayments(treatmentId),
         clinicService.getClinicMembers(clinicId),
+        labService.getTreatmentLabOrders(treatmentId).catch(() => ({ data: [] })),
+        inventoryService.getTreatmentTransactions(treatmentId).catch(() => ({ data: [] })),
       ]);
 
       setTreatment(treatmentResponse.data);
       setPayments(paymentsResponse.data);
+      setLabOrders(labOrdersResponse.data);
+      setInventoryTransactions(inventoryResponse.data);
 
       // Determine user's role
       const storedUser = JSON.parse(localStorage.getItem('user'));
@@ -282,6 +290,127 @@ function TreatmentDetail() {
                 </Grid>
               )}
             </Grid>
+          </CardContent>
+        </Card>
+
+        {/* Lab Orders Section */}
+        <Card sx={{ mb: 3 }}>
+          <CardContent>
+            <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+              <Box display="flex" alignItems="center">
+                <LabIcon sx={{ mr: 1, color: 'primary.main' }} />
+                <Typography variant="h6" component="h2" color="primary">
+                  Đơn Xét nghiệm
+                </Typography>
+              </Box>
+            </Box>
+
+            {labOrders.length === 0 ? (
+              <Typography variant="body1" color="text.secondary" textAlign="center" py={2}>
+                Chưa có đơn xét nghiệm nào.
+              </Typography>
+            ) : (
+              <TableContainer component={Paper} variant="outlined">
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell><strong>Đối tác</strong></TableCell>
+                      <TableCell><strong>Mô tả</strong></TableCell>
+                      <TableCell><strong>Chi phí</strong></TableCell>
+                      <TableCell><strong>Trạng thái</strong></TableCell>
+                      <TableCell><strong>Ngày giao</strong></TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {labOrders.map(order => (
+                      <TableRow key={order.id} hover>
+                        <TableCell>{order.labPartnerName}</TableCell>
+                        <TableCell>{order.description || 'N/A'}</TableCell>
+                        <TableCell>
+                          <Typography variant="body2" fontWeight="medium" color="primary">
+                            {order.price?.toLocaleString('vi-VN')}₫
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={
+                              order.status === 'ORDERED' ? 'Đã đặt' :
+                              order.status === 'RECEIVED' ? 'Đã nhận' :
+                              order.status === 'INSTALLED' ? 'Đã lắp' : 'Đã hủy'
+                            }
+                            size="small"
+                            color={
+                              order.status === 'INSTALLED' ? 'success' :
+                              order.status === 'CANCELED' ? 'error' : 'info'
+                            }
+                          />
+                        </TableCell>
+                        <TableCell>
+                          {order.deliveryDate ? formatDate(order.deliveryDate) : 'Chưa giao'}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Inventory Section */}
+        <Card sx={{ mb: 3 }}>
+          <CardContent>
+            <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+              <Box display="flex" alignItems="center">
+                <InventoryIcon sx={{ mr: 1, color: 'primary.main' }} />
+                <Typography variant="h6" component="h2" color="primary">
+                  Vật tư đã sử dụng
+                </Typography>
+              </Box>
+            </Box>
+
+            {inventoryTransactions.length === 0 ? (
+              <Typography variant="body1" color="text.secondary" textAlign="center" py={2}>
+                Chưa sử dụng vật tư nào.
+              </Typography>
+            ) : (
+              <TableContainer component={Paper} variant="outlined">
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell><strong>Tên vật tư</strong></TableCell>
+                      <TableCell><strong>Số lượng</strong></TableCell>
+                      <TableCell><strong>Đơn vị</strong></TableCell>
+                      <TableCell><strong>Loại</strong></TableCell>
+                      <TableCell><strong>Thời gian</strong></TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {inventoryTransactions.map(transaction => (
+                      <TableRow key={transaction.id} hover>
+                        <TableCell>{transaction.itemName}</TableCell>
+                        <TableCell>
+                          <Typography variant="body2" fontWeight="medium">
+                            {transaction.quantity}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>{transaction.itemUnit}</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={transaction.type === 'EXPORT' ? 'Xuất' : transaction.type}
+                            size="small"
+                            color={transaction.type === 'EXPORT' ? 'warning' : 'default'}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          {transaction.timestamp ? formatDate(transaction.timestamp) : 'N/A'}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
           </CardContent>
         </Card>
 
