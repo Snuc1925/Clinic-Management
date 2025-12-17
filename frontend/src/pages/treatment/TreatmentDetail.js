@@ -64,8 +64,14 @@ function TreatmentDetail() {
         treatmentService.getTreatment(clinicId, treatmentId),
         paymentService.getTreatmentPayments(treatmentId),
         clinicService.getClinicMembers(clinicId),
-        labService.getTreatmentLabOrders(treatmentId).catch(() => ({ data: [] })),
-        inventoryService.getTreatmentTransactions(treatmentId).catch(() => ({ data: [] })),
+        labService.getTreatmentLabOrders(treatmentId).catch((err) => {
+          console.log('Lab orders not available:', err.message);
+          return { data: [] };
+        }),
+        inventoryService.getTreatmentTransactions(treatmentId).catch((err) => {
+          console.log('Inventory transactions not available:', err.message);
+          return { data: [] };
+        }),
       ]);
 
       setTreatment(treatmentResponse.data);
