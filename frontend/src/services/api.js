@@ -212,6 +212,9 @@ export const labService = {
     updateLabOrderStatus: (labOrderId, statusData) => {
         return api.put(`/lab-orders/${labOrderId}/status`, statusData);
     },
+    updateLabOrder: (clinicId, labOrderId, labOrderData) => {
+        return api.put(`/clinics/${clinicId}/lab-orders/${labOrderId}`, labOrderData);
+    },
     deleteLabOrder: (clinicId, labOrderId) => {
         return api.delete(`/clinics/${clinicId}/lab-orders/${labOrderId}`);
     },

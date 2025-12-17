@@ -81,6 +81,20 @@ public class LabOrderController {
         }
     }
 
+    @PutMapping("/clinics/{clinicId}/lab-orders/{labOrderId}")
+    public ResponseEntity<?> updateLabOrder(@PathVariable Long clinicId,
+                                            @PathVariable Long labOrderId,
+                                            @Valid @RequestBody LabOrderRequest request,
+                                            Authentication authentication) {
+        try {
+            Long userId = getUserIdFromAuth(authentication);
+            LabOrderResponse labOrder = labOrderService.updateLabOrder(clinicId, labOrderId, userId, request);
+            return ResponseEntity.ok(labOrder);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("{\"message\": \"" + e.getMessage() + "\"}");
+        }
+    }
+
     @DeleteMapping("/clinics/{clinicId}/lab-orders/{labOrderId}")
     public ResponseEntity<?> deleteLabOrder(@PathVariable Long clinicId,
                                             @PathVariable Long labOrderId,

@@ -121,13 +121,12 @@ function LabOrderForm() {
       };
 
       if (labOrderId) {
-        // Update existing order
+        // Update existing order - update both main fields and status/delivery
+        await labService.updateLabOrder(clinicId, labOrderId, submitData);
         await labService.updateLabOrderStatus(labOrderId, {
           status: formData.status,
           deliveryDate: formData.deliveryDate || null,
         });
-        // Note: We might need a separate update endpoint for full order update
-        // For now, we just update status and delivery date
       } else {
         // Create new order
         await labService.createLabOrder(clinicId, submitData);
@@ -214,7 +213,7 @@ function LabOrderForm() {
                       value={formData.treatmentId}
                       onChange={handleChange}
                       label="Điều trị"
-                      disabled={!!labOrderId || !!urlTreatmentId}
+                      disabled={!!urlTreatmentId}
                     >
                       {treatments.map((treatment) => (
                         <MenuItem key={treatment.id} value={treatment.id}>
@@ -233,7 +232,6 @@ function LabOrderForm() {
                       value={formData.labPartnerId}
                       onChange={handleChange}
                       label="Nhà cung cấp Labo"
-                      disabled={!!labOrderId}
                     >
                       {labPartners.map((partner) => (
                         <MenuItem key={partner.id} value={partner.id}>
@@ -254,7 +252,6 @@ function LabOrderForm() {
                     multiline
                     rows={4}
                     placeholder="Mô tả chi tiết về sản phẩm/dịch vụ labo..."
-                    disabled={!!labOrderId}
                   />
                 </Grid>
 
@@ -268,7 +265,6 @@ function LabOrderForm() {
                     onChange={handleChange}
                     required
                     inputProps={{ min: 0, step: 0.01 }}
-                    disabled={!!labOrderId}
                   />
                 </Grid>
 

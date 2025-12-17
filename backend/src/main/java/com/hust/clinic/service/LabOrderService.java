@@ -89,6 +89,27 @@ public class LabOrderService {
         return mapToResponse(updated);
     }
 
+    public LabOrderResponse updateLabOrder(Long clinicId, Long labOrderId, Long userId, LabOrderRequest request) {
+        verifyClinicMembership(clinicId, userId);
+
+        LabOrder labOrder = labOrderRepository.findById(labOrderId)
+                .orElseThrow(() -> new RuntimeException("Lab order not found"));
+
+        Treatment treatment = treatmentRepository.findByIdAndClinicId(request.getTreatmentId(), clinicId)
+                .orElseThrow(() -> new RuntimeException("Treatment not found"));
+
+        LabPartner labPartner = labPartnerRepository.findByIdAndClinicId(request.getLabPartnerId(), clinicId)
+                .orElseThrow(() -> new RuntimeException("Lab partner not found"));
+
+        labOrder.setTreatmentId(request.getTreatmentId());
+        labOrder.setLabPartnerId(request.getLabPartnerId());
+        labOrder.setPrice(request.getPrice());
+        labOrder.setDescription(request.getDescription());
+
+        LabOrder updated = labOrderRepository.save(labOrder);
+        return mapToResponse(updated);
+    }
+
     public void deleteLabOrder(Long clinicId, Long labOrderId, Long userId) {
         verifyClinicMembership(clinicId, userId);
 
