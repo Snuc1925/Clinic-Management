@@ -22,6 +22,11 @@ import AppointmentList from './pages/appointment/AppointmentList';
 import CalendarView from './pages/appointment/CalendarView';
 import RevenueDashboard from './pages/reports/RevenueDashboard';
 import SupplierList from './pages/inventory/SupplierList';
+import ItemList from './pages/inventory/ItemList';
+import ItemForm from './pages/inventory/ItemForm';
+import ItemBatchList from './pages/inventory/ItemBatchList';
+import LabPartnerList from './pages/lab/LabPartnerList';
+import LabOrderList from './pages/lab/LabOrderList';
 import './App.css';
 
 function App() {
@@ -51,6 +56,12 @@ function App() {
             <Route path="/clinics/:clinicId/calendar" element={<CalendarView />} />
             <Route path="/clinics/:clinicId/reports/revenue" element={<RevenueDashboard />} />
             <Route path="/clinics/:clinicId/suppliers" element={<SupplierList />} />
+            <Route path="/clinics/:clinicId/inventory/items" element={<ItemList />} />
+            <Route path="/clinics/:clinicId/inventory/items/new" element={<ItemForm />} />
+            <Route path="/clinics/:clinicId/inventory/items/:itemId/edit" element={<ItemForm />} />
+            <Route path="/clinics/:clinicId/inventory/batches" element={<ItemBatchList />} />
+            <Route path="/clinics/:clinicId/lab-partners" element={<LabPartnerList />} />
+            <Route path="/clinics/:clinicId/lab-orders" element={<LabOrderList />} />
           </Routes>
         </div>
       </Router>

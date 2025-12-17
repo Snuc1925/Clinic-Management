@@ -31,6 +31,7 @@ import {
   Assessment as ReportsIcon,
   Info as InfoIcon,
   Dashboard as DashboardIcon,
+  Inventory as InventoryIcon,
 } from '@mui/icons-material';
 import { authService } from '../services/api';
 
@@ -84,9 +85,15 @@ function Layout({ children, clinicId, userRole, showClinicMenu = false }) {
           color: '#9C27B0', // Purple
         },
         {
-          text: 'Quản lý labo',
+          text: 'Quản lý vật tư',
+          icon: <InventoryIcon />,
+          path: `/clinics/${clinicId}/inventory/items`,
+          color: '#FF5722', // Deep Orange
+        },
+        {
+          text: 'Đối tác xét nghiệm',
           icon: <LabIcon />,
-          path: `/clinics/${clinicId}/suppliers`,
+          path: `/clinics/${clinicId}/lab-partners`,
           color: '#00BCD4', // Cyan
         },
         ...(userRole === 'owner'
