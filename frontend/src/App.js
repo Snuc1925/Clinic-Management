@@ -56,7 +56,7 @@ function App() {
             <Route path="/clinics/:clinicId/calendar" element={<CalendarView />} />
             <Route path="/clinics/:clinicId/reports/revenue" element={<RevenueDashboard />} />
             <Route path="/clinics/:clinicId/suppliers" element={<SupplierList />} />
-            <Route path="/clinics/:clinicId}/inventory/items" element={<ItemList />} />
+            <Route path="/clinics/:clinicId/inventory/items" element={<ItemList />} />
             <Route path="/clinics/:clinicId/inventory/items/new" element={<ItemForm />} />
             <Route path="/clinics/:clinicId/inventory/items/:itemId/edit" element={<ItemForm />} />
             <Route path="/clinics/:clinicId/inventory/batches" element={<ItemBatchList />} />

@@ -37,7 +37,7 @@ import {
 } from '@mui/icons-material';
 import Layout from '../../components/Layout';
 import { treatmentService, paymentService, clinicService, labService, inventoryService } from '../../services/api';
-import { formatDate, formatCurrency } from '../../utils/formatters';
+import { formatDate } from '../../utils/formatters';
 
 function TreatmentDetail() {
   const { clinicId, treatmentId } = useParams();
