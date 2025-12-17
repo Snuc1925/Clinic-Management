@@ -221,7 +221,7 @@ function TreatmentDetail() {
               Thông tin Điều trị
             </Typography>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid item xs={12}>
                 <Typography variant="body2" color="text.secondary">
                   Bệnh nhân
                 </Typography>
@@ -229,7 +229,7 @@ function TreatmentDetail() {
                   {treatment.patientName}
                 </Typography>
               </Grid>
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid item xs={12}>
                 <Typography variant="body2" color="text.secondary">
                   Bác sĩ
                 </Typography>
@@ -237,7 +237,7 @@ function TreatmentDetail() {
                   {treatment.doctorName}
                 </Typography>
               </Grid>
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid item xs={12}>
                 <Typography variant="body2" color="text.secondary">
                   Ngày điều trị
                 </Typography>
@@ -245,7 +245,7 @@ function TreatmentDetail() {
                   {treatment.date ? formatDate(treatment.date) : 'N/A'}
                 </Typography>
               </Grid>
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid item xs={12}>
                 <Typography variant="body2" color="text.secondary">
                   Tổng chi phí
                 </Typography>
@@ -253,7 +253,7 @@ function TreatmentDetail() {
                   {treatment.totalPayment?.toLocaleString('vi-VN') || '0'} VND
                 </Typography>
               </Grid>
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid item xs={12}>
                 <Typography variant="body2" color="text.secondary">
                   Đã thanh toán
                 </Typography>
@@ -261,7 +261,7 @@ function TreatmentDetail() {
                   {treatment.paidAmount?.toLocaleString('vi-VN') || '0'} VND
                 </Typography>
               </Grid>
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid item xs={12}>
                 <Typography variant="body2" color="text.secondary">
                   Còn nợ
                 </Typography>
@@ -273,7 +273,7 @@ function TreatmentDetail() {
                   {treatment.remainingBalance?.toLocaleString('vi-VN') || '0'} VND
                 </Typography>
               </Grid>
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid item xs={12}>
                 <Typography variant="body2" color="text.secondary">
                   Trạng thái thanh toán
                 </Typography>
@@ -306,22 +306,30 @@ function TreatmentDetail() {
               <Box display="flex" alignItems="center">
                 <LabIcon sx={{ mr: 1, color: 'primary.main' }} />
                 <Typography variant="h6" component="h2" color="primary">
-                  Đơn Xét nghiệm
+                  Labo đã đặt
                 </Typography>
               </Box>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<AddIcon />}
+                onClick={() => navigate(`/clinics/${clinicId}/treatments/${treatmentId}/lab-orders/new`)}
+              >
+                Tạo đơn mới
+              </Button>
             </Box>
 
             {labOrders.length === 0 ? (
               <Typography variant="body1" color="text.secondary" textAlign="center" py={2}>
-                Chưa có đơn xét nghiệm nào.
+                Chưa có đơn labo nào.
               </Typography>
             ) : (
               <TableContainer component={Paper} variant="outlined">
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell><strong>Đối tác</strong></TableCell>
-                      <TableCell><strong>Mô tả</strong></TableCell>
+                      <TableCell><strong>Nhà cung cấp</strong></TableCell>
+                      <TableCell><strong>Sản phẩm</strong></TableCell>
                       <TableCell><strong>Chi phí</strong></TableCell>
                       <TableCell><strong>Trạng thái</strong></TableCell>
                       <TableCell><strong>Ngày giao</strong></TableCell>
@@ -342,7 +350,7 @@ function TreatmentDetail() {
                             label={
                               order.status === 'ORDERED' ? 'Đã đặt' :
                               order.status === 'RECEIVED' ? 'Đã nhận' :
-                              order.status === 'INSTALLED' ? 'Đã lắp' : 'Đã hủy'
+                              order.status === 'INSTALLED' ? 'Đã lắp' : 'Hủy'
                             }
                             size="small"
                             color={

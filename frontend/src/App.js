@@ -27,6 +27,8 @@ import ItemForm from './pages/inventory/ItemForm';
 import ItemBatchList from './pages/inventory/ItemBatchList';
 import LabPartnerList from './pages/lab/LabPartnerList';
 import LabOrderList from './pages/lab/LabOrderList';
+import LabManagement from './pages/lab/LabManagement';
+import LabOrderForm from './pages/lab/LabOrderForm';
 import './App.css';
 
 function App() {
@@ -62,6 +64,10 @@ function App() {
             <Route path="/clinics/:clinicId/inventory/batches" element={<ItemBatchList />} />
             <Route path="/clinics/:clinicId/lab-partners" element={<LabPartnerList />} />
             <Route path="/clinics/:clinicId/lab-orders" element={<LabOrderList />} />
+            <Route path="/clinics/:clinicId/lab-management" element={<LabManagement />} />
+            <Route path="/clinics/:clinicId/lab-orders/new" element={<LabOrderForm />} />
+            <Route path="/clinics/:clinicId/lab-orders/:labOrderId/edit" element={<LabOrderForm />} />
+            <Route path="/clinics/:clinicId/treatments/:treatmentId/lab-orders/new" element={<LabOrderForm />} />
           </Routes>
         </div>
       </Router>
