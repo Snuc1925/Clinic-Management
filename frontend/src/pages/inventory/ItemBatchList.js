@@ -34,6 +34,7 @@ import {
   Warning as WarningIcon,
   Delete as DeleteIcon,
   ArrowBack as ArrowBackIcon,
+  Remove as RemoveIcon,
 } from '@mui/icons-material';
 import Layout from '../../components/Layout';
 import { inventoryService, clinicService } from '../../services/api';
@@ -48,11 +49,16 @@ function ItemBatchList() {
   const [error, setError] = useState('');
   const [userRole, setUserRole] = useState('');
   const [showImportDialog, setShowImportDialog] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false);
   const [importBatches, setImportBatches] = useState([{
     itemId: '',
     quantity: '',
     unitPrice: '',
     expiryDate: '',
+  }]);
+  const [exportItems, setExportItems] = useState([{
+    itemId: '',
+    quantity: '',
   }]);
   const theme = useTheme();
 
@@ -130,7 +136,63 @@ function ItemBatchList() {
       }]);
       loadData();
     } catch (err) {
-      setError(err.response?.data?.message || 'Không thể nhập hàng');
+      setError(err.response?.data?.message || 'Không thể nhập kho');
+    }
+  };
+
+  const handleAddExportRow = () => {
+    setExportItems([...exportItems, {
+      itemId: '',
+      quantity: '',
+    }]);
+  };
+
+  const handleRemoveExportRow = (index) => {
+    const newItems = exportItems.filter((_, i) => i !== index);
+    setExportItems(newItems);
+  };
+
+  const handleExportChange = (index, field, value) => {
+    const newItems = [...exportItems];
+    newItems[index][field] = value;
+    setExportItems(newItems);
+  };
+
+  const handleExportSubmit = async () => {
+    try {
+      // Validate inputs
+      for (let i = 0; i < exportItems.length; i++) {
+        const item = exportItems[i];
+        if (!item.itemId || !item.quantity) {
+          setError('Vui lòng điền đầy đủ thông tin cho tất cả các vật tư');
+          return;
+        }
+        if (isNaN(parseInt(item.itemId)) || isNaN(parseInt(item.quantity))) {
+          setError('Thông tin vật tư hoặc số lượng không hợp lệ');
+          return;
+        }
+        if (parseInt(item.quantity) <= 0) {
+          setError('Số lượng phải lớn hơn 0');
+          return;
+        }
+      }
+
+      const exportData = {
+        exports: exportItems.map(item => ({
+          itemId: parseInt(item.itemId),
+          quantity: parseInt(item.quantity),
+        })),
+      };
+
+      await inventoryService.exportInventory(clinicId, exportData);
+      setShowExportDialog(false);
+      setExportItems([{
+        itemId: '',
+        quantity: '',
+      }]);
+      loadData();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Không thể xuất kho');
     }
   };
 
@@ -206,12 +268,20 @@ function ItemBatchList() {
                 Quay lại
               </Button>
               <Button
+                variant="outlined"
+                startIcon={<RemoveIcon />}
+                onClick={() => setShowExportDialog(true)}
+                sx={{ borderRadius: 2 }}
+              >
+                Xuất kho
+              </Button>
+              <Button
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={() => setShowImportDialog(true)}
                 sx={{ borderRadius: 2 }}
               >
-                Nhập hàng
+                Nhập kho
               </Button>
             </Stack>
           </Box>
@@ -301,7 +371,7 @@ function ItemBatchList() {
         >
           <DialogTitle>
             <Typography variant="h6" fontWeight="bold">
-              Nhập hàng mới
+              Nhập kho mới
             </Typography>
           </DialogTitle>
           <DialogContent>
@@ -384,7 +454,83 @@ function ItemBatchList() {
           <DialogActions sx={{ p: 3 }}>
             <Button onClick={() => setShowImportDialog(false)}>Hủy</Button>
             <Button variant="contained" onClick={handleImportSubmit}>
-              Nhập hàng
+              Nhập kho
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Export Dialog */}
+        <Dialog 
+          open={showExportDialog} 
+          onClose={() => setShowExportDialog(false)}
+          maxWidth="md"
+          fullWidth
+        >
+          <DialogTitle>
+            <Typography variant="h6" fontWeight="bold">
+              Xuất kho
+            </Typography>
+          </DialogTitle>
+          <DialogContent>
+            <Box sx={{ mt: 2 }}>
+              {exportItems.map((item, index) => (
+                <Card key={index} sx={{ mb: 2, p: 2, bgcolor: alpha(theme.palette.warning.main, 0.05) }}>
+                  <Grid container spacing={2} alignItems="center">
+                    <Grid item xs={12} sm={8}>
+                      <TextField
+                        select
+                        fullWidth
+                        label="Vật tư"
+                        value={item.itemId}
+                        onChange={(e) => handleExportChange(index, 'itemId', e.target.value)}
+                        SelectProps={{ native: true }}
+                        required
+                      >
+                        <option value="">Chọn vật tư</option>
+                        {items.map(inventoryItem => (
+                          <option key={inventoryItem.id} value={inventoryItem.id}>
+                            {inventoryItem.name} ({inventoryItem.unit}) - Còn: {inventoryItem.currentStock}
+                          </option>
+                        ))}
+                      </TextField>
+                    </Grid>
+                    <Grid item xs={12} sm={3}>
+                      <TextField
+                        fullWidth
+                        type="number"
+                        label="Số lượng"
+                        value={item.quantity}
+                        onChange={(e) => handleExportChange(index, 'quantity', e.target.value)}
+                        required
+                        inputProps={{ min: 1 }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={1}>
+                      {exportItems.length > 1 && (
+                        <IconButton
+                          color="error"
+                          onClick={() => handleRemoveExportRow(index)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      )}
+                    </Grid>
+                  </Grid>
+                </Card>
+              ))}
+              <Button
+                startIcon={<AddIcon />}
+                onClick={handleAddExportRow}
+                sx={{ mt: 1 }}
+              >
+                Thêm vật tư
+              </Button>
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ p: 3 }}>
+            <Button onClick={() => setShowExportDialog(false)}>Hủy</Button>
+            <Button variant="contained" onClick={handleExportSubmit}>
+              Xuất kho
             </Button>
           </DialogActions>
         </Dialog>

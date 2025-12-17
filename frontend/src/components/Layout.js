@@ -91,9 +91,9 @@ function Layout({ children, clinicId, userRole, showClinicMenu = false }) {
           color: '#FF5722', // Deep Orange
         },
         {
-          text: 'Đối tác xét nghiệm',
+          text: 'Quản lý labo',
           icon: <LabIcon />,
-          path: `/clinics/${clinicId}/lab-partners`,
+          path: `/clinics/${clinicId}/lab-management`,
           color: '#00BCD4', // Cyan
         },
         ...(userRole === 'owner'
