@@ -57,7 +57,7 @@ function ItemBatchList() {
     expiryDate: '',
   }]);
   const [exportItems, setExportItems] = useState([{
-    itemId: '',
+    batchId: '',
     quantity: '',
   }]);
   const theme = useTheme();
@@ -160,34 +160,26 @@ function ItemBatchList() {
 
   const handleExportSubmit = async () => {
     try {
-      // Validate inputs
-      for (let i = 0; i < exportItems.length; i++) {
-        const item = exportItems[i];
-        if (!item.itemId || !item.quantity) {
-          setError('Vui lòng điền đầy đủ thông tin cho tất cả các vật tư');
-          return;
-        }
-        if (isNaN(parseInt(item.itemId)) || isNaN(parseInt(item.quantity))) {
-          setError('Thông tin vật tư hoặc số lượng không hợp lệ');
-          return;
-        }
-        if (parseInt(item.quantity) <= 0) {
-          setError('Số lượng phải lớn hơn 0');
-          return;
-        }
+      for (const item of exportItems) {
+      // Validate
+      if (!item.batchId || !item.quantity) {
+        setError('Vui lòng chọn lô hàng và nhập số lượng');
+        return;
       }
 
+      // Khớp với DTO của Backend: { batchId: Long, quantity: Integer, ... }
       const exportData = {
-        exports: exportItems.map(item => ({
-          itemId: parseInt(item.itemId),
-          quantity: parseInt(item.quantity),
-        })),
+        batchId: parseInt(item.batchId),
+        quantity: parseInt(item.quantity),
+        reason: "Xuất kho thủ công",
+        referenceType: "MANUAL"
       };
 
       await inventoryService.exportInventory(clinicId, exportData);
+      }
       setShowExportDialog(false);
       setExportItems([{
-        itemId: '',
+        batchId: '',
         quantity: '',
       }]);
       loadData();
@@ -383,13 +375,13 @@ function ItemBatchList() {
                       <TextField
                         select
                         fullWidth
-                        label="Vật tư"
+                        label=""
                         value={batch.itemId}
                         onChange={(e) => handleBatchChange(index, 'itemId', e.target.value)}
                         SelectProps={{ native: true }}
                         required
                       >
-                        <option value="">Chọn vật tư</option>
+                        <option value="">Chọn lô hàng</option>
                         {items.map(item => (
                           <option key={item.id} value={item.id}>
                             {item.name} ({item.unit})
@@ -480,16 +472,16 @@ function ItemBatchList() {
                       <TextField
                         select
                         fullWidth
-                        label="Vật tư"
-                        value={item.itemId}
-                        onChange={(e) => handleExportChange(index, 'itemId', e.target.value)}
+                        label=""
+                        value={item.batchId}
+                        onChange={(e) => handleExportChange(index, 'batchId', e.target.value)}
                         SelectProps={{ native: true }}
                         required
                       >
-                        <option value="">Chọn vật tư</option>
-                        {items.map(inventoryItem => (
-                          <option key={inventoryItem.id} value={inventoryItem.id}>
-                            {inventoryItem.name} ({inventoryItem.unit}) - Còn: {inventoryItem.currentStock}
+                        <option value="">Chọn lô hàng</option>
+                        {batches.map(batch => (
+                          <option key={batch.id} value={batch.id}>
+                           {batch.expiryDate ? formatDate(batch.expiryDate) : 'N/A'} - {batch.itemName} (Còn: {batch.quantityRemaining})
                           </option>
                         ))}
                       </TextField>
