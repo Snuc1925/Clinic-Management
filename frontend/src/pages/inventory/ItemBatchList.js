@@ -65,14 +65,14 @@ function ItemBatchList() {
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const [itemsResponse, expiringBatchesResponse, membersResponse] = await Promise.all([
+      const [itemsResponse, allBatchesResponse, membersResponse] = await Promise.all([
         inventoryService.getClinicItems(clinicId),
-        inventoryService.getExpiringBatches(clinicId, 60),
+        inventoryService.getAllBatches(clinicId),
         clinicService.getClinicMembers(clinicId),
       ]);
       
       setItems(itemsResponse.data);
-      setBatches(expiringBatchesResponse.data);
+      setBatches(allBatchesResponse.data);
       
       const storedUser = JSON.parse(localStorage.getItem('user'));
       const currentMember = membersResponse.data.find(m => m.id === storedUser.id);

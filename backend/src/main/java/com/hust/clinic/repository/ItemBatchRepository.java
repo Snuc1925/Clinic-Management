@@ -17,4 +17,11 @@ public interface ItemBatchRepository extends JpaRepository<ItemBatch, Long> {
            "AND b.expiryDate IS NOT NULL AND b.expiryDate BETWEEN :startDate AND :endDate " +
            "AND b.quantityRemaining > 0 ORDER BY b.expiryDate ASC")
     List<ItemBatch> findExpiringBatches(Long clinicId, LocalDate startDate, LocalDate endDate);
+
+    @Query("SELECT b FROM ItemBatch b JOIN Item i ON b.itemId = i.id " +
+            "WHERE i.clinicId = :clinicId AND b.quantityRemaining > 0 " +
+            "ORDER BY b.expiryDate ASC NULLS LAST")
+    List<ItemBatch> findAllClinicBatches( Long clinicId);
+
+
 }

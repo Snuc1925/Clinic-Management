@@ -64,6 +64,18 @@ public class ItemBatchController {
         }
     }
 
+    @GetMapping("/batches/all")
+    public ResponseEntity<?> getAllBatches(@PathVariable Long clinicId,
+                                           Authentication authentication) {
+        try {
+            Long userId = getUserIdFromAuth(authentication);
+            List<ItemBatchResponse> batches = itemBatchService.getAllClinicBatches(clinicId, userId);
+            return ResponseEntity.ok(batches);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("{\"message\": \"" + e.getMessage() + "\"}");
+        }
+    }
+
     @PostMapping("/batches/export")
     public ResponseEntity<?> exportInventory(@PathVariable Long clinicId,
                                              @Valid @RequestBody ExportInventoryRequest request,

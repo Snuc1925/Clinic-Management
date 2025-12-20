@@ -96,6 +96,15 @@ public class ItemBatchService {
                 .collect(Collectors.toList());
     }
 
+    public List<ItemBatchResponse> getAllClinicBatches(Long clinicId, Long userId) {
+        verifyClinicMembership(clinicId, userId);
+
+        return itemBatchRepository.findAllClinicBatches(clinicId)
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public void exportInventory(Long clinicId, Long userId, ExportInventoryRequest request) {
         verifyClinicMembership(clinicId, userId);

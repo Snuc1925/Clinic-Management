@@ -165,6 +165,9 @@ export const inventoryService = {
     getExpiringBatches: (clinicId, daysAhead = 30) => {
         return api.get(`/clinics/${clinicId}/batches/expiring`, { params: { daysAhead } });
     },
+    getAllBatches: (clinicId) => {
+        return api.get(`/clinics/${clinicId}/batches/all`);
+    },
     exportInventory: (clinicId, exportData) => {
         return api.post(`/clinics/${clinicId}/batches/export`, exportData);
     },
