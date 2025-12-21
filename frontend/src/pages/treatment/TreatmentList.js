@@ -668,7 +668,7 @@ function TreatmentList() {
                             <Tooltip title="Chỉnh sửa">
                               <IconButton
                                 size="small"
-                                onClick={() => navigate(`/clinics/${clinicId}/treatments/${treatment.id}/edit`)}
+                                onClick={() => navigate(`/clinics/${clinicId}/treatments/${treatment.id}`)}
                                 sx={{
                                   bgcolor: alpha(theme.palette.primary.main, 0.1),
                                   '&:hover': { 
