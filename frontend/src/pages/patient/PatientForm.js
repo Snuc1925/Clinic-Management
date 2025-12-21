@@ -9,7 +9,7 @@ import {
   CircularProgress,
   Card,
   CardContent,
-  Grid,
+  Stack 
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
@@ -158,70 +158,67 @@ function PatientForm() {
         <Card>
           <CardContent>
             <Box component="form" onSubmit={handleSubmit}>
-              <Grid container spacing={3}>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Họ và tên *"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    required
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Số điện thoại"
-                    name="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Ngày sinh"
-                    name="dateOfBirth"
-                    type="date"
-                    value={formData.dateOfBirth}
-                    onChange={handleChange}
-                    InputLabelProps={{ shrink: true }}
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  {/* Empty grid item for spacing */}
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Địa chỉ"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    multiline
-                    rows={3}
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Ghi chú của bác sĩ"
-                    name="note"
-                    value={formData.note}
-                    onChange={handleChange}
-                    multiline
-                    rows={4}
-                    placeholder="Ghi chú riêng về lịch sử bệnh, dị ứng, v.v..."
-                    variant="outlined"
-                  />
-                </Grid>
-              </Grid>
+              
+              {/* SỬ DỤNG STACK ĐỂ XẾP DỌC CÁC TRƯỜNG */}
+              <Stack spacing={3}>
+                
+                <TextField
+                  fullWidth
+                  label="Họ và tên *"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  required
+                  variant="outlined"
+                />
+
+                <TextField
+                  fullWidth
+                  label="Số điện thoại"
+                  name="phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  variant="outlined"
+                />
+
+                <TextField
+                  fullWidth
+                  label="Ngày sinh"
+                  name="dateOfBirth"
+                  type="date"
+                  value={formData.dateOfBirth}
+                  onChange={handleChange}
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{ max: '9999-12-31' }} // Giới hạn năm 4 số
+                  variant="outlined"
+                />
+
+                <TextField
+                  fullWidth
+                  label="Địa chỉ"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  multiline
+                  rows={3}
+                  variant="outlined"
+                />
+
+                <TextField
+                  fullWidth
+                  label="Ghi chú của bác sĩ"
+                  name="note"
+                  value={formData.note}
+                  onChange={handleChange}
+                  multiline
+                  rows={4}
+                  placeholder="Ghi chú riêng về lịch sử bệnh, dị ứng, v.v..."
+                  variant="outlined"
+                />
+
+              </Stack>
+              {/* KẾT THÚC STACK */}
 
               <Box display="flex" justifyContent="flex-end" gap={2} mt={3}>
                 <Button

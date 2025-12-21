@@ -181,8 +181,8 @@ export const inventoryService = {
     },
 };
 
-export const labService = {
-    // Lab partner management
+
+export const labPartnerService = {
     createLabPartner: (clinicId, labPartnerData) => {
         return api.post(`/clinics/${clinicId}/lab-partners`, labPartnerData);
     },
@@ -198,8 +198,9 @@ export const labService = {
     deleteLabPartner: (clinicId, labPartnerId) => {
         return api.delete(`/clinics/${clinicId}/lab-partners/${labPartnerId}`);
     },
-    
-    // Lab order management
+};
+
+export const labOrderService = {
     createLabOrder: (clinicId, labOrderData) => {
         return api.post(`/clinics/${clinicId}/lab-orders`, labOrderData);
     },
@@ -221,6 +222,11 @@ export const labService = {
     deleteLabOrder: (clinicId, labOrderId) => {
         return api.delete(`/clinics/${clinicId}/lab-orders/${labOrderId}`);
     },
+};
+
+export const labService = {
+    ...labPartnerService,
+    ...labOrderService
 };
 
 export default api;

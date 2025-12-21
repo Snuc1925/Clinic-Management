@@ -662,22 +662,7 @@ function TreatmentList() {
                                   transition: 'all 0.2s ease-in-out',
                                 }}
                               >
-                                <ViewIcon sx={{ color: 'info.main', fontSize: 18 }} />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Chỉnh sửa">
-                              <IconButton
-                                size="small"
-                                onClick={() => navigate(`/clinics/${clinicId}/treatments/${treatment.id}/edit`)}
-                                sx={{
-                                  bgcolor: alpha(theme.palette.primary.main, 0.1),
-                                  '&:hover': { 
-                                    bgcolor: alpha(theme.palette.primary.main, 0.2),
-                                    transform: 'scale(1.1)',
-                                  },
-                                  transition: 'all 0.2s ease-in-out',
-                                }}
-                              >
+                                
                                 <EditIcon sx={{ color: 'primary.main', fontSize: 18 }} />
                               </IconButton>
                             </Tooltip>
