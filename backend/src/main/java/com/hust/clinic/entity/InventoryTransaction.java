@@ -15,10 +15,13 @@ public class InventoryTransaction {
     private Long batchId;
 
     @Column(nullable = false)
-    private String type; // IMPORT, EXPORT, ADJUST
+    private String type; // IMPORT, EXPORT
 
     @Column(nullable = false)
     private Integer quantity;
+
+    @Column(name = "doctor_id", nullable = false)
+    private Long doctorId;
 
     @Column(columnDefinition = "TEXT")
     private String reason;
@@ -46,86 +49,47 @@ public class InventoryTransaction {
     public InventoryTransaction() {
     }
 
-    public InventoryTransaction(Long batchId, String type, Integer quantity, String reason, String referenceType, Long referenceId, LocalDateTime timestamp) {
+    // Constructor đã cập nhật đầy đủ các tham số cần thiết
+    public InventoryTransaction(Long batchId, String type, Integer quantity, Long doctorId, String reason, String referenceType, Long referenceId, LocalDateTime timestamp) {
         this.batchId = batchId;
         this.type = type;
         this.quantity = quantity;
+        this.doctorId = doctorId;
         this.reason = reason;
         this.referenceType = referenceType;
         this.referenceId = referenceId;
         this.timestamp = timestamp;
     }
 
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
+    // --- Getters and Setters ---
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public Long getBatchId() {
-        return batchId;
-    }
+    public Long getBatchId() { return batchId; }
+    public void setBatchId(Long batchId) { this.batchId = batchId; }
 
-    public void setBatchId(Long batchId) {
-        this.batchId = batchId;
-    }
+    public String getType() { return type; }
+    public void setType(String type) { this.type = type; }
 
-    public String getType() {
-        return type;
-    }
+    public Integer getQuantity() { return quantity; }
+    public void setQuantity(Integer quantity) { this.quantity = quantity; }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+    public Long getDoctorId() { return doctorId; }
+    public void setDoctorId(Long doctorId) { this.doctorId = doctorId; }
 
-    public Integer getQuantity() {
-        return quantity;
-    }
+    public String getReason() { return reason; }
+    public void setReason(String reason) { this.reason = reason; }
 
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
+    public String getReferenceType() { return referenceType; }
+    public void setReferenceType(String referenceType) { this.referenceType = referenceType; }
 
-    public String getReason() {
-        return reason;
-    }
+    public Long getReferenceId() { return referenceId; }
+    public void setReferenceId(Long referenceId) { this.referenceId = referenceId; }
 
-    public void setReason(String reason) {
-        this.reason = reason;
-    }
+    public LocalDateTime getTimestamp() { return timestamp; }
+    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
 
-    public String getReferenceType() {
-        return referenceType;
-    }
-
-    public void setReferenceType(String referenceType) {
-        this.referenceType = referenceType;
-    }
-
-    public Long getReferenceId() {
-        return referenceId;
-    }
-
-    public void setReferenceId(Long referenceId) {
-        this.referenceId = referenceId;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
