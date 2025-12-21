@@ -19,6 +19,8 @@ import TreatmentList from './pages/treatment/TreatmentList';
 import TreatmentForm from './pages/treatment/TreatmentForm';
 import TreatmentDetail from './pages/treatment/TreatmentDetail';
 import AppointmentList from './pages/appointment/AppointmentList';
+import AppointmentForm from './pages/appointment/AppointmentForm';
+import AppointmentDetail from './pages/appointment/AppointmentDetail';
 import CalendarView from './pages/appointment/CalendarView';
 import RevenueDashboard from './pages/reports/RevenueDashboard';
 import SupplierList from './pages/inventory/SupplierList';
@@ -55,6 +57,8 @@ function App() {
             <Route path="/clinics/:clinicId/treatments/new" element={<TreatmentForm />} />
             <Route path="/clinics/:clinicId/treatments/:treatmentId" element={<TreatmentDetail />} />
             <Route path="/clinics/:clinicId/appointments" element={<AppointmentList />} />
+            <Route path="/clinics/:clinicId/appointments/new" element={<AppointmentForm />} />
+            <Route path="/clinics/:clinicId/appointments/:id/edit" element={<AppointmentDetail />} />
             <Route path="/clinics/:clinicId/calendar" element={<CalendarView />} />
             <Route path="/clinics/:clinicId/reports/revenue" element={<RevenueDashboard />} />
             <Route path="/clinics/:clinicId/suppliers" element={<SupplierList />} />
