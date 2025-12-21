@@ -659,7 +659,6 @@ function ClinicManagement() {
                       <TableCell><strong>Địa chỉ</strong></TableCell>
                       <TableCell><strong>Vai trò</strong></TableCell>
                       <TableCell><strong>Ngày tham gia</strong></TableCell>
-                      {isOwner && <TableCell><strong>Lương tháng</strong></TableCell>}
                       {isOwner && <TableCell align="center"><strong>Thao tác</strong></TableCell>}
                     </TableRow>
                   </TableHead>
@@ -718,7 +717,7 @@ function ClinicManagement() {
                             {formatDate(member.joinedAt)}
                           </Typography>
                         </TableCell>
-                        {isOwner && (
+                        {/* {isOwner && (
                           <TableCell>
                             <Box display="flex" alignItems="center" gap={1}>
                               <SalaryIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
@@ -727,12 +726,12 @@ function ClinicManagement() {
                               </Typography>
                             </Box>
                           </TableCell>
-                        )}
+                        )} */}
                         {isOwner && (
                           <TableCell align="center">
                             {member.role !== 'owner' && (
                               <Stack direction="row" spacing={1} justifyContent="center">
-                                <Tooltip title="Thiết lập lương">
+                                {/* <Tooltip title="Thiết lập lương">
                                   <IconButton
                                     size="small"
                                     onClick={() => handleOpenSalaryDialog(member)}
@@ -743,7 +742,7 @@ function ClinicManagement() {
                                   >
                                     <SalaryIcon sx={{ color: 'success.main' }} />
                                   </IconButton>
-                                </Tooltip>
+                                </Tooltip> */}
                                 <Tooltip title="Xóa thành viên">
                                   <IconButton
                                     size="small"

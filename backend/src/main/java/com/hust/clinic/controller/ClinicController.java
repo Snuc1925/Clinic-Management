@@ -87,7 +87,7 @@ public class ClinicController {
         }
     }
 
-    @PutMapping("/{id}/members/{memberId}")
+    @PutMapping("/{id}/members/{memberId}/status")
     public ResponseEntity<?> updateMemberStatus(@PathVariable Long id,
                                                @PathVariable Long memberId,
                                                @Valid @RequestBody UpdateMemberStatusRequest request,
@@ -101,7 +101,7 @@ public class ClinicController {
         }
     }
 
-    @DeleteMapping("/{id}/members/{memberId}")
+    @DeleteMapping("/{id}/members/{memberId}/status")
     public ResponseEntity<?> removeMember(@PathVariable Long id,
                                          @PathVariable Long memberId,
                                          Authentication authentication) {
