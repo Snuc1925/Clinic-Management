@@ -4,6 +4,7 @@ import com.hust.clinic.dto.AppointmentRequest;
 import com.hust.clinic.dto.AppointmentResponse;
 import com.hust.clinic.dto.UpdateAppointmentStatusRequest;
 import com.hust.clinic.service.AppointmentService;
+import com.hust.clinic.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +51,33 @@ public class AppointmentController {
         }
     }
 
+    @GetMapping("/api/clinics/{clinicId}/appointments/{appointmentId}")
+    public ResponseEntity<?> getAppointment(@PathVariable Long clinicId,
+                                            @PathVariable Long appointmentId,
+                                            Authentication authentication) {
+        try {
+            Long userId = getUserIdFromAuth(authentication);
+            AppointmentResponse appointment = appointmentService.getAppointment(appointmentId, userId);
+            return ResponseEntity.ok(appointment);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("{\"message\": \"" + e.getMessage() + "\"}");
+        }
+    }
+
+    @PutMapping("/api/clinics/{clinicId}/appointments/{appointmentId}")
+    public ResponseEntity<?> updateAppointment(@PathVariable Long clinicId,
+                                               @PathVariable Long appointmentId,
+                                               @Valid @RequestBody AppointmentRequest request,
+                                               Authentication authentication) {
+        try {
+            Long userId = getUserIdFromAuth(authentication);
+            AppointmentResponse appointment = appointmentService.updateAppointment(appointmentId, userId, request);
+            return ResponseEntity.ok(appointment);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("{\"message\": \"" + e.getMessage() + "\"}");
+        }
+    }
+
     @GetMapping("/api/clinics/{clinicId}/calendar")
     public ResponseEntity<?> getCalendarData(@PathVariable Long clinicId,
                                             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
@@ -64,6 +92,7 @@ public class AppointmentController {
         }
     }
 
+    // API Cập nhật trạng thái nhanh (Status only)
     @PutMapping("/api/appointments/{appointmentId}")
     public ResponseEntity<?> updateAppointmentStatus(@PathVariable Long appointmentId,
                                                      @Valid @RequestBody UpdateAppointmentStatusRequest request,

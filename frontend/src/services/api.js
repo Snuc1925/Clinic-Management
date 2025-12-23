@@ -129,6 +129,12 @@ export const appointmentService = {
     getCalendarData: (clinicId, start, end) => {
         return api.get(`/clinics/${clinicId}/calendar`, { params: { start, end } });
     },
+    getAppointment: (clinicId, appointmentId) => {
+        return api.get(`/clinics/${clinicId}/appointments/${appointmentId}`);
+    },
+    updateAppointment: (clinicId, appointmentId, appointmentData) => {
+        return api.put(`/clinics/${clinicId}/appointments/${appointmentId}`, appointmentData);
+    },
     updateAppointmentStatus: (appointmentId, status) => {
         return api.put(`/appointments/${appointmentId}`, { status });
     },

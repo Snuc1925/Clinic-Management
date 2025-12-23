@@ -60,6 +60,44 @@ public class AppointmentService {
                 .collect(Collectors.toList());
     }
 
+    public AppointmentResponse getAppointment(Long appointmentId, Long userId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+
+        verifyClinicMembership(appointment.getClinicId(), userId);
+
+        return mapToResponse(appointment);
+    }
+
+    public AppointmentResponse updateAppointment(Long appointmentId, Long userId, AppointmentRequest request) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+
+        verifyClinicMembership(appointment.getClinicId(), userId);
+
+        if (request.getAppointmentDate() != null) {
+            appointment.setAppointmentDate(request.getAppointmentDate());
+        }
+        
+        if (request.getDescription() != null) {
+            appointment.setDescription(request.getDescription());
+        }
+        
+        if (request.getStatus() != null) {
+            appointment.setStatus(request.getStatus());
+        }
+
+        if (request.getPatientId() != null && !request.getPatientId().equals(appointment.getPatientId())) {
+             patientRepository.findByIdAndClinicId(request.getPatientId(), appointment.getClinicId())
+                .orElseThrow(() -> new RuntimeException("Patient not found in this clinic"));
+             appointment.setPatientId(request.getPatientId());
+        }
+
+        Appointment updated = appointmentRepository.save(appointment);
+        return mapToResponse(updated);
+    }
+
+
     public List<AppointmentResponse> getCalendarData(Long clinicId, Long userId, LocalDateTime start, LocalDateTime end) {
         verifyClinicMembership(clinicId, userId);
 
@@ -101,14 +139,14 @@ public class AppointmentService {
         response.setCreatedAt(appointment.getCreatedAt());
         response.setUpdatedAt(appointment.getUpdatedAt());
 
-        Patient patient = patientRepository.findById(appointment.getPatientId()).orElse(null);
-        if (patient != null) {
-            response.setPatientName(patient.getFullName());
+        if (appointment.getPatientId() != null) {
+            patientRepository.findById(appointment.getPatientId())
+                .ifPresent(patient -> response.setPatientName(patient.getFullName()));
         }
 
-        User doctor = userRepository.findById(appointment.getDoctorId()).orElse(null);
-        if (doctor != null) {
-            response.setDoctorName(doctor.getFullName());
+        if (appointment.getDoctorId() != null) {
+            userRepository.findById(appointment.getDoctorId())
+                .ifPresent(doctor -> response.setDoctorName(doctor.getFullName()));
         }
 
         return response;
