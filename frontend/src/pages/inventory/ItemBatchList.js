@@ -470,7 +470,7 @@ function ItemBatchList() {
               {exportItems.map((item, index) => (
                 <Card key={index} sx={{ mb: 2, p: 2, bgcolor: alpha(theme.palette.warning.main, 0.05) }}>
                   <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={12} sm={6}>
+                    <Grid item xs={12} sm={7}>
                       <TextField
                         select
                         fullWidth
@@ -488,7 +488,7 @@ function ItemBatchList() {
                         ))}
                       </TextField>
                     </Grid>
-                    <Grid item xs={12} sm={3}>
+                    <Grid item xs={12} sm={4}>
                       <TextField
                         fullWidth
                         type="number"
@@ -499,7 +499,7 @@ function ItemBatchList() {
                         inputProps={{ min: 1 }}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={2}>
+                    <Grid item xs={12} sm={1}>
                       {exportItems.length > 1 && (
                         <IconButton
                           color="error"
