@@ -120,7 +120,7 @@ function RevenueCalendar({ data, currentMonth, onPrevMonth, onNextMonth }) {
         </IconButton>
         
         <Typography variant="h6" fontWeight="bold">
-          Tháng:  {month + 1} / {year}
+          Tháng:  {month + 1} - {year}
         </Typography>
         
         <IconButton onClick={onNextMonth} color="primary">
@@ -769,7 +769,7 @@ function RevenueManagement({ clinicId, setUserRole }) {
             <Box display="flex" alignItems="center" gap={1}>
               <CalendarIcon sx={{ color: 'info.main' }} />
               <Typography variant="h5" fontWeight="bold">
-                Doanh thu theo tháng
+                Tháng
               </Typography>
             </Box>
           </Box>
