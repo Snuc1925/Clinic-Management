@@ -10,8 +10,6 @@ public class InventoryTransactionResponse {
     private String type;
     private Integer quantity;
     private String reason;
-    private String referenceType;
-    private Long referenceId;
     private LocalDateTime timestamp;
     private LocalDateTime createdAt;
 
@@ -72,22 +70,6 @@ public class InventoryTransactionResponse {
 
     public void setReason(String reason) {
         this.reason = reason;
-    }
-
-    public String getReferenceType() {
-        return referenceType;
-    }
-
-    public void setReferenceType(String referenceType) {
-        this.referenceType = referenceType;
-    }
-
-    public Long getReferenceId() {
-        return referenceId;
-    }
-
-    public void setReferenceId(Long referenceId) {
-        this.referenceId = referenceId;
     }
 
     public LocalDateTime getTimestamp() {

@@ -39,13 +39,6 @@ public class InventoryTransactionService {
                 .collect(Collectors.toList());
     }
 
-    public List<InventoryTransactionResponse> getTreatmentTransactions(Long treatmentId) {
-        return inventoryTransactionRepository.findByReferenceTypeAndReferenceId("TREATMENT", treatmentId)
-                .stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
-    }
-
     private void verifyClinicMembership(Long clinicId, Long userId) {
         ClinicMembership membership = clinicMembershipRepository.findByClinicIdAndUserId(clinicId, userId)
                 .orElseThrow(() -> new RuntimeException("You are not a member of this clinic"));
@@ -62,8 +55,6 @@ public class InventoryTransactionService {
         response.setType(transaction.getType());
         response.setQuantity(transaction.getQuantity());
         response.setReason(transaction.getReason());
-        response.setReferenceType(transaction.getReferenceType());
-        response.setReferenceId(transaction.getReferenceId());
         response.setTimestamp(transaction.getTimestamp());
         response.setCreatedAt(transaction.getCreatedAt());
 
