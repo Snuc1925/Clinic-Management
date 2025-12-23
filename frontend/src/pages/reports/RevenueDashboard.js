@@ -98,7 +98,7 @@ function RevenueDashboard() {
       const membersResponse = await clinicService.getClinicMembers(clinicId);
       const storedUser = JSON.parse(localStorage.getItem('user'));
       const currentMember = membersResponse.data.find(
-        m => m.id === storedUser.id
+        m => m.userId === storedUser.id
       );
       const role = currentMember?.role || '';
       setUserRole(role);

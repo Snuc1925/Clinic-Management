@@ -146,7 +146,7 @@ public class DataGenerator implements CommandLineRunner {
     public void run(String... args) throws Exception {
         System.out.println("=== Bắt đầu tạo dữ liệu mẫu ===");
 
-        // Check if data already exists
+//         Check if data already exists
         if (userRepository.count() > 0) {
             System.out.println("Dữ liệu đã tồn tại. Bỏ qua việc tạo dữ liệu mẫu.");
             return;
@@ -165,10 +165,10 @@ public class DataGenerator implements CommandLineRunner {
 
         // 3. Add staff to clinic
         System.out.println("3. Thêm nhân viên vào phòng khám...");
-        createClinicMembership(clinic.getId(), owner.getId(), "active", "owner");
-        createClinicMembership(clinic.getId(), staff1.getId(), "active", "staff");
-        createClinicMembership(clinic.getId(), staff2.getId(), "active", "staff");
-        createClinicMembership(clinic.getId(), staff3.getId(), "active", "staff");
+        createClinicMembership(clinic.getId(), owner.getId(), "accepted", "owner");
+        createClinicMembership(clinic.getId(), staff1.getId(), "accepted", "staff");
+        createClinicMembership(clinic.getId(), staff2.getId(), "accepted", "staff");
+        createClinicMembership(clinic.getId(), staff3.getId(), "accepted", "staff");
 
         // 4. Create Patients
         System.out.println("4. Tạo 200 bệnh nhân...");

@@ -69,7 +69,7 @@ function PatientList() {
       
       // Determine user's role
       const storedUser = JSON.parse(localStorage.getItem('user'));
-      const currentMember = membersResponse.data.find(m => m.id === storedUser.id);
+      const currentMember = membersResponse.data.find(m => m.userId === storedUser.id);
       setUserRole(currentMember?.role || '');
       
       setError('');
@@ -280,7 +280,7 @@ function PatientList() {
                   },
                 }}
               >
-                <CardContent sx={{ textAlign: 'center', py: 3 }}>
+                {/* <CardContent sx={{ textAlign: 'center', py: 3 }}>
                   <Avatar
                     sx={{
                       width: 48,
@@ -290,9 +290,8 @@ function PatientList() {
                       bgcolor: 'success.main',
                     }}
                   >
-                    <PersonAddIcon />
                   </Avatar>
-                  <Typography variant="h4" fontWeight="bold" color="success.main">
+                 <Typography variant="h4" fontWeight="bold" color="success.main">
                     {patients.filter(p => {
                       const createdDate = new Date(p.createdAt);
                       const today = new Date();
@@ -303,7 +302,7 @@ function PatientList() {
                   <Typography variant="body2" color="text.secondary">
                     Mới trong tháng
                   </Typography>
-                </CardContent>
+                </CardContent> */}
               </Card>
             </Zoom>
           </Grid>

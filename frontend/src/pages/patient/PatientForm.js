@@ -54,7 +54,7 @@ function PatientForm() {
 
       // Determine user's role
       const storedUser = JSON.parse(localStorage.getItem('user'));
-      const currentMember = membersResponse.data.find(m => m.id === storedUser.id);
+      const currentMember = membersResponse.data.find(m => m.userId === storedUser.id);
       setUserRole(currentMember?.role || '');
 
       setError('');
@@ -69,7 +69,7 @@ function PatientForm() {
     try {
       const membersResponse = await clinicService.getClinicMembers(clinicId);
       const storedUser = JSON.parse(localStorage.getItem('user'));
-      const currentMember = membersResponse.data.find(m => m.id === storedUser.id);
+      const currentMember = membersResponse.data.find(m => m.userId === storedUser.id);
       setUserRole(currentMember?.role || '');
     } catch (err) {
       console.error('Failed to load user role');

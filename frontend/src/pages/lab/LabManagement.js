@@ -96,7 +96,7 @@ function LabManagement() {
       setLabOrders(ordersResponse.data);
       
       const storedUser = JSON.parse(localStorage.getItem('user'));
-      const currentMember = membersResponse.data.find(m => m.id === storedUser.id);
+      const currentMember = membersResponse.data.find(m => m.userId === storedUser.id);
       setUserRole(currentMember?.role || '');
       
       setError('');

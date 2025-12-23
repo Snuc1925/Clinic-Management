@@ -75,7 +75,7 @@ function CalendarView() {
 
       // Determine user's role
       const storedUser = JSON.parse(localStorage.getItem('user'));
-      const currentMember = membersResponse.data.find(m => m.id === storedUser.id);
+      const currentMember = membersResponse.data.find(m => m.userId === storedUser.id);
       setUserRole(currentMember?.role || '');
 
       setError('');
