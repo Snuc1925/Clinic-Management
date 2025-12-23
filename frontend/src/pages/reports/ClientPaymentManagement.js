@@ -38,6 +38,7 @@ function ClientPaymentManagement({ clinicId, setUserRole }) {
       setUserRole(storedUser.role);
     }
     fetchClientStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clinicId, setUserRole]);
 
   const fetchClientStats = async () => {
