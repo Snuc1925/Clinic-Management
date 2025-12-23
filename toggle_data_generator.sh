@@ -15,13 +15,17 @@ fi
 if grep -q "^@Component" "$DATA_GENERATOR_FILE"; then
     echo "DataGenerator is currently ENABLED"
     echo "Disabling DataGenerator..."
-    sed -i 's/^@Component$/\/\/@Component/' "$DATA_GENERATOR_FILE"
+    # Use backup file for macOS/BSD compatibility
+    sed -i.bak 's/^@Component$/\/\/@Component/' "$DATA_GENERATOR_FILE"
+    rm -f "${DATA_GENERATOR_FILE}.bak"
     echo "✓ DataGenerator has been DISABLED"
     echo "  The data generation script will not run automatically on application startup."
 else
     echo "DataGenerator is currently DISABLED"
     echo "Enabling DataGenerator..."
-    sed -i 's/^\/\/@Component$/@Component/' "$DATA_GENERATOR_FILE"
+    # Use backup file for macOS/BSD compatibility
+    sed -i.bak 's/^\/\/@Component$/@Component/' "$DATA_GENERATOR_FILE"
+    rm -f "${DATA_GENERATOR_FILE}.bak"
     echo "✓ DataGenerator has been ENABLED"
     echo "  The data generation script will run automatically on next application startup."
 fi

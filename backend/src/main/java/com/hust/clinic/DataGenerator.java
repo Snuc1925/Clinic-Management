@@ -8,10 +8,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 public class DataGenerator implements CommandLineRunner {
@@ -349,7 +350,7 @@ public class DataGenerator implements CommandLineRunner {
                 if (i == numPayments - 1) {
                     payment.setAmount(remaining);
                 } else {
-                    BigDecimal amount = totalAmount.divide(BigDecimal.valueOf(numPayments), 0, BigDecimal.ROUND_DOWN);
+                    BigDecimal amount = totalAmount.divide(BigDecimal.valueOf(numPayments), 0, RoundingMode.DOWN);
                     payment.setAmount(amount);
                     remaining = remaining.subtract(amount);
                 }
@@ -533,6 +534,6 @@ public class DataGenerator implements CommandLineRunner {
         
         LocalDate date = LocalDate.ofEpochDay(randomSecond / 86400);
         int secondOfDay = (int) (randomSecond % 86400);
-        return LocalDateTime.of(date, java.time.LocalTime.ofSecondOfDay(secondOfDay));
+        return LocalDateTime.of(date, LocalTime.ofSecondOfDay(secondOfDay));
     }
 }
