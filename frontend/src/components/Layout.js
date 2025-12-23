@@ -148,9 +148,6 @@ function Layout({ children, clinicId, userRole, showClinicMenu = false }) {
         <Typography variant="h6" fontWeight="bold" sx={{ mb: 0.5 }}>
           Quản lý Phòng khám
         </Typography>
-        <Typography variant="body2" sx={{ opacity: 0.9 }}>
-          Xin chào, Snuc1925
-        </Typography>
       </Box>
 
       {/* Menu Items */}
