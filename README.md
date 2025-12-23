@@ -520,6 +520,55 @@ Authorization: Bearer {token}
 ]
 ```
 
+## Sample Data Generator
+
+### Automatic Data Generation
+
+The project includes an automatic data generator that creates sample data when the application starts for the first time. This is useful for testing and development purposes.
+
+#### What Gets Generated
+
+The data generator creates:
+- **4 Users**: 1 clinic owner + 3 staff members (all Vietnamese names)
+- **1 Clinic**: "Phòng Khám Nha Khoa Nụ Cười"
+- **200 Patients**: With Vietnamese names, addresses (VN provinces), and valid phone numbers (08/09)
+- **300 Treatments**: Distributed across 2024-2025
+- **100 Appointments**: Distributed across 2024-2025
+- **Payment Records**: Various payment scenarios (full payment, installments, debt)
+- **30 Inventory Items**: Medical supplies and equipment
+- **Item Batches**: Multiple batches per item
+- **100 Inventory Transactions**: Import/export transactions
+- **3 Lab Partners**: Vietnamese lab testing centers
+- **50 Lab Orders**: Associated with selected treatments
+
+**Default User Credentials:**
+- Owner: `0901234567` / Password: `123456`
+- Staff 1: `0912345678` / Password: `123456`
+- Staff 2: `0923456789` / Password: `123456`
+- Staff 3: `0934567890` / Password: `123456`
+
+#### How to Use
+
+1. Start the application normally - data will be generated automatically on first run
+2. The generator only runs when the database is empty (no users exist)
+3. Check console logs for generation progress and summary
+
+#### Disable/Enable Data Generator
+
+**Option 1: Using the toggle script**
+```bash
+./toggle_data_generator.sh
+```
+
+**Option 2: Manual editing**
+Edit `backend/src/main/java/com/hust/clinic/DataGenerator.java` and comment out the `@Component` annotation:
+```java
+//@Component
+public class DataGenerator implements CommandLineRunner {
+```
+
+For detailed information about the data generator, see [DATA_GENERATOR_README.md](DATA_GENERATOR_README.md)
+
 ## Usage
 
 ### First Time Setup
@@ -527,6 +576,7 @@ Authorization: Bearer {token}
 1. **Start the backend server** (port 8080)
 2. **Start the frontend server** (port 3000)
 3. **Navigate to** `http://localhost:3000`
+4. **(Optional)** Sample data will be automatically generated on first run
 
 ### Register a New User
 
