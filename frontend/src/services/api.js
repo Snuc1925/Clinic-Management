@@ -117,6 +117,9 @@ export const paymentService = {
     getTreatmentPayments: (treatmentId) => {
         return api.get(`/treatments/${treatmentId}/payments`);
     },
+    getClientPaymentStats: (clinicId) => {
+        return api.get(`/clinics/${clinicId}/reports/client-payment-stats`);
+    },
 };
 
 export const appointmentService = {

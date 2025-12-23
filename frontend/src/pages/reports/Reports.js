@@ -13,7 +13,7 @@ import {
 } from '@mui/icons-material';
 import Layout from '../../components/Layout';
 import RevenueManagement from './RevenueManagement';
-import DebtManagement from './DebtManagement';
+import ClientPaymentManagement from './ClientPaymentManagement';
 
 function TabPanel({ children, value, index, ...other }) {
   return (
@@ -86,7 +86,7 @@ function Reports() {
           </TabPanel>
 
           <TabPanel value={activeTab} index={1}>
-            <DebtManagement clinicId={clinicId} setUserRole={setUserRole} />
+            <ClientPaymentManagement clinicId={clinicId} setUserRole={setUserRole} />
           </TabPanel>
         </Paper>
       </Box>

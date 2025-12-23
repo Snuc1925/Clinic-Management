@@ -1,7 +1,9 @@
 package com.hust.clinic.controller;
 
+import com.hust.clinic.dto.ClientPaymentStatsResponse;
 import com.hust.clinic.dto.RevenueReportResponse;
 import com.hust.clinic.dto.StaffPerformanceResponse;
+import com.hust.clinic.service.PaymentService;
 import com.hust.clinic.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -20,6 +22,9 @@ public class ReportController {
 
     @Autowired
     private ReportService reportService;
+
+    @Autowired
+    private PaymentService paymentService;
 
     @Autowired
     private com.hust.clinic.repository.UserRepository userRepository;
@@ -89,6 +94,18 @@ public class ReportController {
             Long userId = getUserIdFromAuth(authentication);
             List<StaffPerformanceResponse> performance = reportService.getStaffPerformance(userId, clinicId, startDate, endDate);
             return ResponseEntity.ok(performance);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("{\"message\": \"" + e.getMessage() + "\"}");
+        }
+    }
+
+    @GetMapping("/client-payment-stats")
+    public ResponseEntity<?> getClientPaymentStats(@PathVariable Long clinicId,
+                                                   Authentication authentication) {
+        try {
+            Long userId = getUserIdFromAuth(authentication);
+            List<ClientPaymentStatsResponse> stats = paymentService.getClientPaymentStats(clinicId, userId);
+            return ResponseEntity.ok(stats);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("{\"message\": \"" + e.getMessage() + "\"}");
         }
