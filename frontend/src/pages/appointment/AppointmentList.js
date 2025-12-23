@@ -79,11 +79,11 @@ function AppointmentList() {
 
   // --- Filter & Sort ---
   const filteredAppointments = appointments.filter(apt => filter === 'all' || apt.status === filter);
-  const sortedAppointments = [...filteredAppointments].sort((a, b) => new Date(a.appointmentDate) - new Date(b.appointmentDate));
+  // const sortedAppointments = [...filteredAppointments].sort((a, b) => new Date(b.appointmentDate) - new Date(a.appointmentDate));
 
   const today = new Date(); today.setHours(0, 0, 0, 0);
-  const upcomingAppointments = sortedAppointments.filter(apt => new Date(apt.appointmentDate) >= today);
-  const pastAppointments = sortedAppointments.filter(apt => new Date(apt.appointmentDate) < today);
+  const upcomingAppointments = filteredAppointments.filter(apt => new Date(apt.appointmentDate) >= today);
+  const pastAppointments = filteredAppointments.filter(apt => new Date(apt.appointmentDate) < today);
 
   // --- Render Table ---
   const renderAppointmentTable = (appointmentsList) => {

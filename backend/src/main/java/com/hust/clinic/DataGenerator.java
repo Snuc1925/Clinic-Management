@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
-@Component
+//@Component
 public class DataGenerator implements CommandLineRunner {
 
     @Autowired

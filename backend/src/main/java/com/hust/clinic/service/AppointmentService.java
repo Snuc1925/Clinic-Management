@@ -54,7 +54,7 @@ public class AppointmentService {
     public List<AppointmentResponse> getClinicAppointments(Long clinicId, Long userId) {
         verifyClinicMembership(clinicId, userId);
 
-        return appointmentRepository.findByClinicId(clinicId)
+        return appointmentRepository.findByClinicIdOrderByAppointmentDateDesc(clinicId)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());

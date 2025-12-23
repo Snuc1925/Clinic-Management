@@ -12,4 +12,5 @@ public interface TreatmentRepository extends JpaRepository<Treatment, Long> {
     List<Treatment> findByClinicId(Long clinicId);
     List<Treatment> findByPatientId(Long patientId);
     Optional<Treatment> findByIdAndClinicId(Long id, Long clinicId);
+    List<Treatment> findByClinicIdOrderByDateDesc(Long clinicId);
 }
