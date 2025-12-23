@@ -96,10 +96,19 @@ public class PaymentService {
         // Get all treatments for this clinic
         List<Treatment> treatments = treatmentRepository.findByClinicId(clinicId);
         
+        // Get treatment IDs for efficient payment lookup
+        List<Long> treatmentIds = treatments.stream()
+            .map(Treatment::getId)
+            .collect(Collectors.toList());
+        
+        // Get all payments for treatments in this clinic (optimized query)
+        List<Payment> payments = treatmentIds.isEmpty() ? 
+            new ArrayList<>() : 
+            paymentRepository.findByTreatmentIdIn(treatmentIds);
+        
         // Create a map of treatmentId -> list of payments
         Map<Long, List<Payment>> treatmentPaymentsMap = new HashMap<>();
-        List<Payment> allPayments = paymentRepository.findAll();
-        for (Payment payment : allPayments) {
+        for (Payment payment : payments) {
             treatmentPaymentsMap.computeIfAbsent(payment.getTreatmentId(), k -> new ArrayList<>()).add(payment);
         }
         

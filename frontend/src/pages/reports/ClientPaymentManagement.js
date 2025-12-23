@@ -76,12 +76,11 @@ function ClientPaymentManagement({ clinicId, setUserRole }) {
     let filtered = [...clientStats];
 
     // Filter based on selection
-    if (filterType === 'totalPayment') {
-      // Show all, but we'll sort by totalPayment later
-    } else if (filterType === 'debt') {
+    if (filterType === 'debt') {
       // Show only clients with debt
       filtered = filtered.filter(client => client.totalDebt > 0);
     }
+    // For 'all' and 'totalPayment' filters, show all clients
 
     // Sort based on filter type and sort order
     filtered.sort((a, b) => {
@@ -90,11 +89,8 @@ function ClientPaymentManagement({ clinicId, setUserRole }) {
       if (filterType === 'totalPayment') {
         aValue = a.totalPayment;
         bValue = b.totalPayment;
-      } else if (filterType === 'debt') {
-        aValue = a.totalDebt;
-        bValue = b.totalDebt;
       } else {
-        // Default: sort by totalDebt
+        // Default: sort by totalDebt for both 'all' and 'debt' filters
         aValue = a.totalDebt;
         bValue = b.totalDebt;
       }
