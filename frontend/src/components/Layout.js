@@ -101,7 +101,7 @@ function Layout({ children, clinicId, userRole, showClinicMenu = false }) {
               {
                 text: 'Thống kê, Báo cáo',
                 icon: <ReportsIcon />,
-                path: `/clinics/${clinicId}/reports/revenue`,
+                path: `/clinics/${clinicId}/reports`,
                 color: '#795548', // Brown
               },
             ]

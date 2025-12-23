@@ -22,7 +22,7 @@ import AppointmentList from './pages/appointment/AppointmentList';
 import AppointmentForm from './pages/appointment/AppointmentForm';
 import AppointmentDetail from './pages/appointment/AppointmentDetail';
 import CalendarView from './pages/appointment/CalendarView';
-import RevenueDashboard from './pages/reports/RevenueDashboard';
+import Reports from './pages/reports/Reports';
 import SupplierList from './pages/inventory/SupplierList';
 import ItemList from './pages/inventory/ItemList';
 import ItemForm from './pages/inventory/ItemForm';
@@ -60,7 +60,7 @@ function App() {
             <Route path="/clinics/:clinicId/appointments/new" element={<AppointmentForm />} />
             <Route path="/clinics/:clinicId/appointments/:id/edit" element={<AppointmentDetail />} />
             <Route path="/clinics/:clinicId/calendar" element={<CalendarView />} />
-            <Route path="/clinics/:clinicId/reports/revenue" element={<RevenueDashboard />} />
+            <Route path="/clinics/:clinicId/reports" element={<Reports/>} />
             <Route path="/clinics/:clinicId/suppliers" element={<SupplierList />} />
             <Route path="/clinics/:clinicId/inventory/items" element={<ItemList />} />
             <Route path="/clinics/:clinicId/inventory/items/new" element={<ItemForm />} />
