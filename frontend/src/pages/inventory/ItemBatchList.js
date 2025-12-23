@@ -59,6 +59,7 @@ function ItemBatchList() {
   const [exportItems, setExportItems] = useState([{
     batchId: '',
     quantity: '',
+    reason: '',
   }]);
   const theme = useTheme();
 
@@ -142,8 +143,9 @@ function ItemBatchList() {
 
   const handleAddExportRow = () => {
     setExportItems([...exportItems, {
-      itemId: '',
+      batchId: '',
       quantity: '',
+      reason: '',
     }]);
   };
 
@@ -167,12 +169,11 @@ function ItemBatchList() {
         return;
       }
 
-      // Khớp với DTO của Backend: { batchId: Long, quantity: Integer, ... }
+      // Khớp với DTO của Backend: { batchId: Long, quantity: Integer, reason: String }
       const exportData = {
         batchId: parseInt(item.batchId),
         quantity: parseInt(item.quantity),
-        reason: "Xuất kho thủ công",
-        referenceType: "MANUAL"
+        reason: item.reason || "Xuất kho thủ công",
       };
 
       await inventoryService.exportInventory(clinicId, exportData);
@@ -181,6 +182,7 @@ function ItemBatchList() {
       setExportItems([{
         batchId: '',
         quantity: '',
+        reason: '',
       }]);
       loadData();
     } catch (err) {
@@ -468,7 +470,7 @@ function ItemBatchList() {
               {exportItems.map((item, index) => (
                 <Card key={index} sx={{ mb: 2, p: 2, bgcolor: alpha(theme.palette.warning.main, 0.05) }}>
                   <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={12} sm={8}>
+                    <Grid item xs={12} sm={6}>
                       <TextField
                         select
                         fullWidth
@@ -497,7 +499,7 @@ function ItemBatchList() {
                         inputProps={{ min: 1 }}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={1}>
+                    <Grid item xs={12} sm={2}>
                       {exportItems.length > 1 && (
                         <IconButton
                           color="error"
@@ -506,6 +508,17 @@ function ItemBatchList() {
                           <DeleteIcon />
                         </IconButton>
                       )}
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        fullWidth
+                        label="Lý do"
+                        value={item.reason}
+                        onChange={(e) => handleExportChange(index, 'reason', e.target.value)}
+                        placeholder="Nhập lý do xuất kho..."
+                        multiline
+                        rows={2}
+                      />
                     </Grid>
                   </Grid>
                 </Card>

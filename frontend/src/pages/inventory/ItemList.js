@@ -35,6 +35,7 @@ import {
   Warning as WarningIcon,
   CheckCircle as CheckCircleIcon,
   LocalShipping as ShippingIcon,
+  History as HistoryIcon,
 } from '@mui/icons-material';
 import Layout from '../../components/Layout';
 import { inventoryService, clinicService } from '../../services/api';
@@ -156,6 +157,14 @@ function ItemList() {
               </Box>
             </Box>
             <Stack direction="row" spacing={2}>
+              <Button
+                variant="outlined"
+                startIcon={<HistoryIcon />}
+                onClick={() => navigate(`/clinics/${clinicId}/inventory/transactions`)}
+                sx={{ borderRadius: 2 }}
+              >
+                Lịch sử nhập/xuất kho
+              </Button>
               <Button
                 variant="outlined"
                 startIcon={<ShippingIcon />}

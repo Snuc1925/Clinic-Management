@@ -27,6 +27,7 @@ import SupplierList from './pages/inventory/SupplierList';
 import ItemList from './pages/inventory/ItemList';
 import ItemForm from './pages/inventory/ItemForm';
 import ItemBatchList from './pages/inventory/ItemBatchList';
+import TransactionHistory from './pages/inventory/TransactionHistory';
 import LabPartnerList from './pages/lab/LabPartnerList';
 import LabOrderList from './pages/lab/LabOrderList';
 import LabManagement from './pages/lab/LabManagement';
@@ -66,6 +67,7 @@ function App() {
             <Route path="/clinics/:clinicId/inventory/items/new" element={<ItemForm />} />
             <Route path="/clinics/:clinicId/inventory/items/:itemId/edit" element={<ItemForm />} />
             <Route path="/clinics/:clinicId/inventory/batches" element={<ItemBatchList />} />
+            <Route path="/clinics/:clinicId/inventory/transactions" element={<TransactionHistory />} />
             <Route path="/clinics/:clinicId/lab-partners" element={<LabPartnerList />} />
             <Route path="/clinics/:clinicId/lab-orders" element={<LabOrderList />} />
             <Route path="/clinics/:clinicId/lab-management" element={<LabManagement />} />
