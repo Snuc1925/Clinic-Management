@@ -11,6 +11,8 @@ import {
   IconButton,
   alpha,
   Tooltip as MuiTooltip,
+  ToggleButtonGroup,
+  ToggleButton,
 } from '@mui/material';
 import {
   TrendingUp as TrendingUpIcon,
@@ -54,14 +56,14 @@ function getSunday(monday) {
 }
 
 // Custom Calendar Component for Monthly Revenue
-function RevenueCalendar({ data, currentMonth, onPrevMonth, onNextMonth }) {
+function RevenueCalendar({ revenueData, expensesData, viewType, currentMonth, onPrevMonth, onNextMonth }) {
   const getDaysInMonth = (date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay. getDay();
+    const startingDayOfWeek = firstDay.getDay();
     
     return { daysInMonth, startingDayOfWeek, year, month };
   };
@@ -93,17 +95,29 @@ function RevenueCalendar({ data, currentMonth, onPrevMonth, onNextMonth }) {
     weeks.push(days);
   }
 
-  const getRevenueForDay = (day) => {
-    if (!day || ! data) return 0;
+  const getValueForDay = (day) => {
+    if (!day) return 0;
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    return data[dateStr] || 0;
+    const revenue = revenueData?.[dateStr] || 0;
+    const expenses = expensesData?.[dateStr] || 0;
+    
+    if (viewType === 'revenue') return revenue;
+    if (viewType === 'expenses') return expenses;
+    return revenue - expenses; // profit
   };
 
-  const maxRevenue = data ? Math.max(...Object.values(data).filter(v => v > 0), 1) : 1;
+  // Calculate max value for color scaling
+  const allValues = [];
+  for (let day = 1; day <= daysInMonth; day++) {
+    const value = getValueForDay(day);
+    if (value > 0) allValues.push(value);
+  }
+  const maxValue = allValues.length > 0 ? Math.max(...allValues) : 1;
 
-  const getColor = (revenue) => {
-    if (revenue === 0) return '#f5f5f5';
-    const intensity = revenue / maxRevenue;
+  const getColor = (value) => {
+    if (value === 0) return '#f5f5f5';
+    if (value < 0) return '#ffcdd2'; // Light red for negative profit
+    const intensity = value / maxValue;
     if (intensity > 0.75) return '#1976d2';
     if (intensity > 0.5) return '#42a5f5';
     if (intensity > 0.25) return '#90caf9';
@@ -146,11 +160,11 @@ function RevenueCalendar({ data, currentMonth, onPrevMonth, onNextMonth }) {
         
         {weeks.map((week, weekIdx) =>
           week.map((day, dayIdx) => {
-            const revenue = getRevenueForDay(day);
+            const value = getValueForDay(day);
             return (
               <MuiTooltip
                 key={`${weekIdx}-${dayIdx}`}
-                title={day ? `${day}/${month + 1}/${year}:  ${formatCurrency(revenue)}` : ''}
+                title={day ? `${day}/${month + 1}/${year}: ${formatCurrency(value)}` : ''}
                 arrow
               >
                 <Box
@@ -160,7 +174,7 @@ function RevenueCalendar({ data, currentMonth, onPrevMonth, onNextMonth }) {
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    bgcolor:  day ? getColor(revenue) : 'transparent',
+                    bgcolor: day ? getColor(value) : 'transparent',
                     borderRadius: 1,
                     cursor: day ? 'pointer' : 'default',
                     transition: 'all 0.2s',
@@ -174,16 +188,16 @@ function RevenueCalendar({ data, currentMonth, onPrevMonth, onNextMonth }) {
                 >
                   {day && (
                     <>
-                      <Typography variant="body2" fontWeight="bold" sx={{ color: revenue > 0 ? 'white' : 'text.primary' }}>
+                      <Typography variant="body2" fontWeight="bold" sx={{ color: value > 0 ? 'white' : (value < 0 ? 'error.main' : 'text.primary') }}>
                         {day}
                       </Typography>
-                      {revenue > 0 && (
-                        <Typography variant="caption" sx={{ fontSize: '0.6rem', color: 'white', mt: 0.5 }}>
-                          {revenue >= 1000000 
-                            ? `${(revenue / 1000000).toFixed(1)}M`
-                            : revenue >= 1000
-                            ? `${(revenue / 1000).toFixed(0)}K`
-                            : revenue. toFixed(0)
+                      {value !== 0 && (
+                        <Typography variant="caption" sx={{ fontSize: '0.6rem', color: value > 0 ? 'white' : 'error.main', mt: 0.5 }}>
+                          {Math.abs(value) >= 1000000 
+                            ? `${value < 0 ? '-' : ''}${(Math.abs(value) / 1000000).toFixed(1)}M`
+                            : Math.abs(value) >= 1000
+                            ? `${value < 0 ? '-' : ''}${(Math.abs(value) / 1000).toFixed(0)}K`
+                            : value.toFixed(0)
                           }
                         </Typography>
                       )}
@@ -199,14 +213,22 @@ function RevenueCalendar({ data, currentMonth, onPrevMonth, onNextMonth }) {
       <Box mt={2} display="flex" justifyContent="center" gap={2} flexWrap="wrap">
         <Box display="flex" alignItems="center" gap={1}>
           <Box sx={{ width: 16, height: 16, bgcolor: '#f5f5f5', border: '1px solid #e0e0e0', borderRadius: 0.5 }} />
-          <Typography variant="caption">Không có DT</Typography>
+          <Typography variant="caption">
+            {viewType === 'profit' ? 'Hòa vốn' : 'Không có'}
+          </Typography>
         </Box>
+        {viewType === 'profit' && (
+          <Box display="flex" alignItems="center" gap={1}>
+            <Box sx={{ width: 16, height: 16, bgcolor: '#ffcdd2', borderRadius: 0.5 }} />
+            <Typography variant="caption">Lỗ</Typography>
+          </Box>
+        )}
         <Box display="flex" alignItems="center" gap={1}>
           <Box sx={{ width: 16, height: 16, bgcolor: '#bbdefb', borderRadius: 0.5 }} />
           <Typography variant="caption">Thấp</Typography>
         </Box>
         <Box display="flex" alignItems="center" gap={1}>
-          <Box sx={{ width:  16, height: 16, bgcolor: '#42a5f5', borderRadius:  0.5 }} />
+          <Box sx={{ width: 16, height: 16, bgcolor: '#42a5f5', borderRadius: 0.5 }} />
           <Typography variant="caption">Trung bình</Typography>
         </Box>
         <Box display="flex" alignItems="center" gap={1}>
@@ -223,6 +245,9 @@ function RevenueManagement({ clinicId, setUserRole }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
+  // View type: 'revenue', 'expenses', or 'profit'
+  const [viewType, setViewType] = useState('revenue');
+  
   // Summary data (current period)
   const [summaryData, setSummaryData] = useState(null);
   
@@ -234,6 +259,7 @@ function RevenueManagement({ clinicId, setUserRole }) {
   // Monthly data
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [monthlyData, setMonthlyData] = useState({});
+  const [monthlyExpenses, setMonthlyExpenses] = useState({});
   const [monthlyLoading, setMonthlyLoading] = useState(false);
   
   // Yearly data
@@ -325,6 +351,7 @@ function RevenueManagement({ clinicId, setUserRole }) {
 
       // Create data for all 7 days (Monday to Sunday)
       const dailyRevenueMap = response.data.dailyRevenue || {};
+      const dailyExpensesMap = response.data.dailyExpenses || {};
       const chartData = [];
       
       for (let i = 0; i < 7; i++) {
@@ -333,9 +360,15 @@ function RevenueManagement({ clinicId, setUserRole }) {
         const dateStr = formatDateForAPI(currentDate);
         const dayName = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'][(i + 1) % 7];
         
+        const revenue = dailyRevenueMap[dateStr] || 0;
+        const expenses = dailyExpensesMap[dateStr] || 0;
+        
         chartData.push({
           date: `${dayName} ${currentDate.getDate()}/${currentDate.getMonth() + 1}`,
-          amount: dailyRevenueMap[dateStr] || 0,
+          amount: revenue,
+          revenue: revenue,
+          expenses: expenses,
+          profit: revenue - expenses,
           fullDate: dateStr,
         });
       }
@@ -369,7 +402,8 @@ function RevenueManagement({ clinicId, setUserRole }) {
         }
       );
 
-      setMonthlyData(response.data. dailyRevenue || {});
+      setMonthlyData(response.data.dailyRevenue || {});
+      setMonthlyExpenses(response.data.dailyExpenses || {});
     } catch (err) {
       console.error('Error loading monthly data:', err);
     } finally {
@@ -400,16 +434,28 @@ function RevenueManagement({ clinicId, setUserRole }) {
 
       // Group by month (Jan to Dec)
       const monthlyRevenue = {};
+      const monthlyExpenses = {};
       for (let month = 0; month < 12; month++) {
         monthlyRevenue[month] = 0;
+        monthlyExpenses[month] = 0;
       }
 
-      const dailyRevenueMap = response.data. dailyRevenue || {};
+      const dailyRevenueMap = response.data.dailyRevenue || {};
+      const dailyExpensesMap = response.data.dailyExpenses || {};
+      
       Object.entries(dailyRevenueMap).forEach(([dateStr, amount]) => {
         const date = new Date(dateStr);
         if (date.getFullYear() === currentYear) {
           const month = date.getMonth();
           monthlyRevenue[month] += amount;
+        }
+      });
+      
+      Object.entries(dailyExpensesMap).forEach(([dateStr, amount]) => {
+        const date = new Date(dateStr);
+        if (date.getFullYear() === currentYear) {
+          const month = date.getMonth();
+          monthlyExpenses[month] += amount;
         }
       });
 
@@ -418,6 +464,9 @@ function RevenueManagement({ clinicId, setUserRole }) {
         chartData.push({
           month: `Tháng ${month + 1}`,
           amount: monthlyRevenue[month],
+          revenue: monthlyRevenue[month],
+          expenses: monthlyExpenses[month],
+          profit: monthlyRevenue[month] - monthlyExpenses[month],
           monthNumber: month + 1,
         });
       }
@@ -458,22 +507,36 @@ function RevenueManagement({ clinicId, setUserRole }) {
 
       // Group by year
       const yearlyRevenue = {};
+      const yearlyExpenses = {};
       for (let year = startYear; year <= currentYearNum; year++) {
         yearlyRevenue[year] = 0;
+        yearlyExpenses[year] = 0;
       }
 
-      const dailyRevenueMap = response. data.dailyRevenue || {};
+      const dailyRevenueMap = response.data.dailyRevenue || {};
+      const dailyExpensesMap = response.data.dailyExpenses || {};
+      
       Object.entries(dailyRevenueMap).forEach(([dateStr, amount]) => {
         const year = new Date(dateStr).getFullYear();
         if (yearlyRevenue[year] !== undefined) {
           yearlyRevenue[year] += amount;
         }
       });
+      
+      Object.entries(dailyExpensesMap).forEach(([dateStr, amount]) => {
+        const year = new Date(dateStr).getFullYear();
+        if (yearlyExpenses[year] !== undefined) {
+          yearlyExpenses[year] += amount;
+        }
+      });
 
-      const chartData = Object.entries(yearlyRevenue)
-        .map(([year, amount]) => ({
-          year:  `${year}`,
-          amount: amount,
+      const chartData = Object.keys(yearlyRevenue)
+        .map((year) => ({
+          year: `${year}`,
+          amount: yearlyRevenue[year],
+          revenue: yearlyRevenue[year],
+          expenses: yearlyExpenses[year],
+          profit: yearlyRevenue[year] - yearlyExpenses[year],
         }))
         .sort((a, b) => parseInt(a.year) - parseInt(b.year));
 
@@ -558,8 +621,62 @@ function RevenueManagement({ clinicId, setUserRole }) {
   const weekEnd = getSunday(currentWeekStart);
   const weekRangeStr = `${currentWeekStart.getDate()}/${currentWeekStart.getMonth() + 1} - ${weekEnd.getDate()}/${weekEnd.getMonth() + 1}/${weekEnd.getFullYear()}`;
 
+  // Helper to get the data key and label based on view type
+  const getViewConfig = () => {
+    switch (viewType) {
+      case 'revenue':
+        return { key: 'revenue', label: 'Doanh thu', color: '#667eea' };
+      case 'expenses':
+        return { key: 'expenses', label: 'Chi phí', color: '#f5576c' };
+      case 'profit':
+        return { key: 'profit', label: 'Lợi nhuận', color: '#43e97b' };
+      default:
+        return { key: 'revenue', label: 'Doanh thu', color: '#667eea' };
+    }
+  };
+
+  const viewConfig = getViewConfig();
+
   return (
     <Box sx={{ pb: 4 }}>
+      {/* View Type Selector */}
+      <Box display="flex" justifyContent="center" mb={3}>
+        <ToggleButtonGroup
+          value={viewType}
+          exclusive
+          onChange={(event, newViewType) => {
+            if (newViewType !== null) {
+              setViewType(newViewType);
+            }
+          }}
+          aria-label="view type"
+          sx={{
+            '& .MuiToggleButton-root': {
+              px: 3,
+              py: 1,
+              fontWeight: 'bold',
+              '&.Mui-selected': {
+                bgcolor: 'primary.main',
+                color: 'white',
+                '&:hover': {
+                  bgcolor: 'primary.dark',
+                },
+              },
+            },
+          }}
+        >
+          <ToggleButton value="revenue" aria-label="revenue">
+            Thu
+          </ToggleButton>
+          <ToggleButton value="expenses" aria-label="expenses">
+            Chi
+          </ToggleButton>
+          <ToggleButton value="profit" aria-label="profit">
+            Lợi nhuận
+          </ToggleButton>
+        </ToggleButtonGroup>
+      </Box>
+
       {/* Summary Cards */}
       <Grid container spacing={3} mb={4}>
         <Grid item xs={12} sm={6} md={4}>
@@ -703,23 +820,23 @@ function RevenueManagement({ clinicId, setUserRole }) {
             </Box>
           </Box>
           
-          {weeklyLoading ?  (
+          {weeklyLoading ? (
             <Box display="flex" justifyContent="center" py={4}>
               <CircularProgress />
             </Box>
-          ) : weeklyData. length > 0 ? (
+          ) : weeklyData.length > 0 ? (
             <ResponsiveContainer width="100%" height={350}>
               <BarChart data={weeklyData}>
                 <defs>
                   <linearGradient id="colorWeekly" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#667eea" stopOpacity={0.9} />
-                    <stop offset="95%" stopColor="#764ba2" stopOpacity={0.7} />
+                    <stop offset="5%" stopColor={viewConfig.color} stopOpacity={0.9} />
+                    <stop offset="95%" stopColor={viewConfig.color} stopOpacity={0.7} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis
                   dataKey="date"
-                  tick={{ fontSize:  12 }}
+                  tick={{ fontSize: 12 }}
                   stroke="#666"
                 />
                 <YAxis
@@ -728,7 +845,7 @@ function RevenueManagement({ clinicId, setUserRole }) {
                   tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`}
                 />
                 <Tooltip
-                  formatter={(value) => [formatCurrency(value), 'Doanh thu']}
+                  formatter={(value) => [formatCurrency(value), viewConfig.label]}
                   contentStyle={{
                     borderRadius: 8,
                     border: 'none',
@@ -737,9 +854,9 @@ function RevenueManagement({ clinicId, setUserRole }) {
                 />
                 <Legend />
                 <Bar
-                  dataKey="amount"
+                  dataKey={viewConfig.key}
                   fill="url(#colorWeekly)"
-                  name="Doanh thu"
+                  name={viewConfig.label}
                   radius={[8, 8, 0, 0]}
                   maxBarSize={80}
                 />
@@ -780,7 +897,9 @@ function RevenueManagement({ clinicId, setUserRole }) {
             </Box>
           ) : (
             <RevenueCalendar
-              data={monthlyData}
+              revenueData={monthlyData}
+              expensesData={monthlyExpenses}
+              viewType={viewType}
               currentMonth={currentMonth}
               onPrevMonth={handlePrevMonth}
               onNextMonth={handleNextMonth}
@@ -827,14 +946,14 @@ function RevenueManagement({ clinicId, setUserRole }) {
               <AreaChart data={yearlyData}>
                 <defs>
                   <linearGradient id="colorYearly" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#43e97b" stopOpacity={0.8} />
-                    <stop offset="95%" stopColor="#38f9d7" stopOpacity={0.1} />
+                    <stop offset="5%" stopColor={viewConfig.color} stopOpacity={0.8} />
+                    <stop offset="95%" stopColor={viewConfig.color} stopOpacity={0.1} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis
                   dataKey="month"
-                  tick={{ fontSize:  12 }}
+                  tick={{ fontSize: 12 }}
                   stroke="#666"
                 />
                 <YAxis
@@ -843,7 +962,7 @@ function RevenueManagement({ clinicId, setUserRole }) {
                   tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`}
                 />
                 <Tooltip
-                  formatter={(value) => [formatCurrency(value), 'Doanh thu']}
+                  formatter={(value) => [formatCurrency(value), viewConfig.label]}
                   contentStyle={{
                     borderRadius: 8,
                     border: 'none',
@@ -853,18 +972,18 @@ function RevenueManagement({ clinicId, setUserRole }) {
                 <Legend />
                 <Area
                   type="monotone"
-                  dataKey="amount"
-                  stroke="#43e97b"
+                  dataKey={viewConfig.key}
+                  stroke={viewConfig.color}
                   strokeWidth={3}
                   fill="url(#colorYearly)"
-                  name="Doanh thu"
+                  name={viewConfig.label}
                 />
                 <Line
                   type="monotone"
-                  dataKey="amount"
-                  stroke="#38f9d7"
+                  dataKey={viewConfig.key}
+                  stroke={viewConfig.color}
                   strokeWidth={2}
-                  dot={{ fill: '#43e97b', r: 5 }}
+                  dot={{ fill: viewConfig.color, r: 5 }}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -903,8 +1022,8 @@ function RevenueManagement({ clinicId, setUserRole }) {
               <BarChart data={allYearsData}>
                 <defs>
                   <linearGradient id="colorAllYears" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f093fb" stopOpacity={0.9} />
-                    <stop offset="95%" stopColor="#f5576c" stopOpacity={0.7} />
+                    <stop offset="5%" stopColor={viewConfig.color} stopOpacity={0.9} />
+                    <stop offset="95%" stopColor={viewConfig.color} stopOpacity={0.7} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -919,7 +1038,7 @@ function RevenueManagement({ clinicId, setUserRole }) {
                   tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`}
                 />
                 <Tooltip
-                  formatter={(value) => [formatCurrency(value), 'Tổng doanh thu']}
+                  formatter={(value) => [formatCurrency(value), viewConfig.label]}
                   contentStyle={{
                     borderRadius: 8,
                     border: 'none',
@@ -928,16 +1047,16 @@ function RevenueManagement({ clinicId, setUserRole }) {
                 />
                 <Legend />
                 <Bar
-                  dataKey="amount"
+                  dataKey={viewConfig.key}
                   fill="url(#colorAllYears)"
-                  name="Doanh thu"
+                  name={viewConfig.label}
                   radius={[8, 8, 0, 0]}
                   maxBarSize={100}
                 />
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <Typography color="text. secondary" align="center" py={4}>
+            <Typography color="text.secondary" align="center" py={4}>
               Không có dữ liệu
             </Typography>
           )}

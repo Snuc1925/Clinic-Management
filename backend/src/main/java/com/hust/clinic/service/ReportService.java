@@ -4,9 +4,11 @@ import com.hust.clinic.dto.RevenueReportResponse;
 import com.hust.clinic.dto.StaffPerformanceResponse;
 import com.hust.clinic.entity.Treatment;
 import com.hust.clinic.entity.Payment;
+import com.hust.clinic.entity.LabOrder;
 import com.hust.clinic.entity.User;
 import com.hust.clinic.repository.TreatmentRepository;
 import com.hust.clinic.repository.PaymentRepository;
+import com.hust.clinic.repository.LabOrderRepository;
 import com.hust.clinic.repository.UserRepository;
 import com.hust.clinic.repository.ClinicMembershipRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,9 @@ public class ReportService {
 
     @Autowired
     private PaymentRepository paymentRepository;
+
+    @Autowired
+    private LabOrderRepository labOrderRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -61,11 +66,32 @@ public class ReportService {
                 Collectors.reducing(BigDecimal.ZERO, Payment::getAmount, BigDecimal::add)
             ));
         
-        // For now, expenses are 0 (can be extended with payroll and purchase orders)
-        BigDecimal totalExpenses = BigDecimal.ZERO;
+        // Get all lab orders for this clinic
+        List<LabOrder> labOrders = labOrderRepository.findByClinicId(clinicId);
+        
+        // Filter lab orders by date range (using createdAt field)
+        labOrders = labOrders.stream()
+            .filter(lo -> {
+                LocalDate createdDate = lo.getCreatedAt().toLocalDate();
+                return !createdDate.isBefore(startDate) && !createdDate.isAfter(endDate);
+            })
+            .collect(Collectors.toList());
+        
+        // Calculate total expenses
+        BigDecimal totalExpenses = labOrders.stream()
+            .map(LabOrder::getPrice)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        // Group by date for daily expenses
+        Map<LocalDate, BigDecimal> dailyExpenses = labOrders.stream()
+            .collect(Collectors.groupingBy(
+                lo -> lo.getCreatedAt().toLocalDate(),
+                Collectors.reducing(BigDecimal.ZERO, LabOrder::getPrice, BigDecimal::add)
+            ));
+        
         BigDecimal profitLoss = totalRevenue.subtract(totalExpenses);
         
-        return new RevenueReportResponse(startDate, endDate, totalRevenue, totalExpenses, profitLoss, dailyRevenue);
+        return new RevenueReportResponse(startDate, endDate, totalRevenue, totalExpenses, profitLoss, dailyRevenue, dailyExpenses);
     }
 
     public List<StaffPerformanceResponse> getStaffPerformance(Long userId, Long clinicId, LocalDate startDate, LocalDate endDate) {
