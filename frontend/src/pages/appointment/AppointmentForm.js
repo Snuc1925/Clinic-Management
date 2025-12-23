@@ -14,6 +14,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Autocomplete,
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
@@ -21,7 +22,8 @@ import {
   Cancel as CancelIcon,
   Event as AppointmentIcon,
   Edit as EditIcon,
-  Add as AddIcon
+  Add as AddIcon,
+  Person as PersonIcon
 } from '@mui/icons-material';
 import Layout from '../../components/Layout';
 import { appointmentService, patientService, clinicService } from '../../services/api';
@@ -40,6 +42,7 @@ function AppointmentForm() {
   });
 
   const [patients, setPatients] = useState([]);
+  const [selectedPatient, setSelectedPatient] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [userRole, setUserRole] = useState('');
@@ -54,23 +57,27 @@ function AppointmentForm() {
         patientService.getClinicPatients(clinicId),
         clinicService.getClinicMembers(clinicId),
       ]);
-      setPatients(patientsRes.data);
+      setPatients(patientsRes. data);
 
       const storedUser = JSON.parse(localStorage.getItem('user'));
-      const currentMember = membersRes.data.find(m => m.id === storedUser.id);
-      setUserRole(currentMember?.role || '');
+      const currentMember = membersRes.data. find(m => m.id === storedUser.id);
+      setUserRole(currentMember?. role || '');
 
       // 2. Nếu là Edit, tải thông tin Appointment cũ
       if (isEdit) {
-        // Lưu ý: Cần đảm bảo api.js có hàm getAppointment(id) hoặc getAppointment(clinicId, id)
-        // Nếu API trả về appointmentDate dạng ISO full (2025-12-20T14:30:00.000Z), cần cắt lấy YYYY-MM-DDTHH:mm
-        const aptRes = await appointmentService.getAppointment(clinicId, id); // Hoặc appointmentService.getAppointment(id) tùy API của bạn
+        const aptRes = await appointmentService.getAppointment(clinicId, id);
         const data = aptRes.data;
+
+        // Find and set selected patient
+        const patient = patientsRes.data.find(p => p.id === data. patientId);
+        if (patient) {
+          setSelectedPatient(patient);
+        }
 
         setFormData({
           patientId: data.patientId,
           // Format lại ngày giờ để hiển thị đúng trong input datetime-local
-          appointmentDate: data.appointmentDate ? data.appointmentDate.slice(0, 16) : '',
+          appointmentDate: data.appointmentDate ?  data.appointmentDate.slice(0, 16) : '',
           description: data.description || '',
           status: data.status || 'scheduled'
         });
@@ -86,7 +93,7 @@ function AppointmentForm() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (!token) {
+    if (! token) {
       navigate('/login');
       return;
     }
@@ -97,8 +104,13 @@ function AppointmentForm() {
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target. name]: e.target.value
     });
+  };
+
+  const handlePatientChange = (event, newValue) => {
+    setSelectedPatient(newValue);
+    setFormData({ ...formData, patientId: newValue ?  newValue.id : '' });
   };
 
   const handleSubmit = async (e) => {
@@ -109,13 +121,12 @@ function AppointmentForm() {
 
       // Chuẩn bị payload (nếu cần xử lý ngày giờ)
       const payload = {
-        ...formData,
+        ... formData,
         // Đảm bảo gửi ISO String về server
         appointmentDate: new Date(formData.appointmentDate).toISOString()
       };
 
       if (isEdit) {
-        // Cần thêm hàm updateAppointment trong api.js nếu chưa có
         await appointmentService.updateAppointment(clinicId, id, payload); 
       } else {
         await appointmentService.createAppointment(clinicId, payload);
@@ -177,29 +188,71 @@ function AppointmentForm() {
               <Stack spacing={3}>
                 
                 <Box>
-                    <Typography variant="h6" component="h2" gutterBottom color="primary">
-                        <AppointmentIcon sx={{ mr: 1, verticalAlign: 'middle' }} /> Thông tin Lịch hẹn
-                    </Typography>
+                  <Typography variant="h6" component="h2" gutterBottom color="primary">
+                    <AppointmentIcon sx={{ mr:  1, verticalAlign: 'middle' }} /> Thông tin Lịch hẹn
+                  </Typography>
                 </Box>
 
-                {/* 1. Chọn Bệnh nhân */}
-                <FormControl fullWidth required>
-                  <InputLabel>Bệnh nhân</InputLabel>
-                  <Select
-                    name="patientId"
-                    value={formData.patientId}
-                    onChange={handleChange}
-                    label="Bệnh nhân"
-                    disabled={isEdit} // Thường không cho đổi bệnh nhân khi sửa lịch (tùy nghiệp vụ)
-                  >
-                    <MenuItem value=""><em>-- Chọn bệnh nhân --</em></MenuItem>
-                    {patients.map(p => (
-                      <MenuItem key={p.id} value={p.id}>
-                        {p.fullName} {p.phone ? `- ${p.phone}` : ''}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                {/* 1. Chọn Bệnh nhân - AUTOCOMPLETE */}
+                <Autocomplete
+                  fullWidth
+                  options={patients}
+                  value={selectedPatient}
+                  onChange={handlePatientChange}
+                  disabled={isEdit} // Thường không cho đổi bệnh nhân khi sửa lịch (tùy nghiệp vụ)
+                  getOptionLabel={(option) => {
+                    const parts = [option.fullName];
+                    if (option.phone) parts.push(option.phone);
+                    if (option.dateOfBirth) {
+                      const dob = new Date(option.dateOfBirth);
+                      parts.push(`${dob.getDate()}/${dob.getMonth() + 1}/${dob.getFullYear()}`);
+                    }
+                    return parts.join(' - ');
+                  }}
+                  filterOptions={(options, { inputValue }) => {
+                    const searchTerm = inputValue.toLowerCase().trim();
+                    if (!searchTerm) return options;
+                    
+                    return options.filter(option => {
+                      const fullName = option.fullName?. toLowerCase() || '';
+                      const phone = option.phone?.toLowerCase() || '';
+                      return fullName.includes(searchTerm) || phone.includes(searchTerm);
+                    });
+                  }}
+                  renderOption={(props, option) => (
+                    <Box component="li" {... props} sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1 }}>
+                      <PersonIcon sx={{ color: 'primary.main', fontSize: 20 }} />
+                      <Box>
+                        <Typography variant="body1" fontWeight="500">
+                          {option.fullName}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {option.phone && `SĐT: ${option.phone}`}
+                          {option.dateOfBirth && ` • Sinh:  ${new Date(option.dateOfBirth).toLocaleDateString('vi-VN')}`}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {... params}
+                      label="Tìm kiếm bệnh nhân *"
+                      placeholder="Nhập tên hoặc số điện thoại..."
+                      required={! selectedPatient}
+                      InputProps={{
+                        ... params.InputProps,
+                        startAdornment: (
+                          <>
+                            <PersonIcon sx={{ color: 'action.active', mr: 1, ml: 1 }} />
+                            {params.InputProps.startAdornment}
+                          </>
+                        ),
+                      }}
+                    />
+                  )}
+                  noOptionsText="Không tìm thấy bệnh nhân"
+                  isOptionEqualToValue={(option, value) => option.id === value.id}
+                />
 
                 {/* 2. Ngày giờ hẹn */}
                 <TextField
@@ -211,22 +264,25 @@ function AppointmentForm() {
                   value={formData.appointmentDate}
                   onChange={handleChange}
                   InputLabelProps={{ shrink: true }}
+                  inputProps={{ 
+                    max: '9999-12-31T23:59'
+                  }}
                 />
 
                 {/* 3. Trạng thái (Chỉ hiện khi Edit hoặc nếu muốn set ngay từ đầu) */}
                 <FormControl fullWidth>
-                    <InputLabel>Trạng thái</InputLabel>
-                    <Select
-                        name="status"
-                        value={formData.status}
-                        onChange={handleChange}
-                        label="Trạng thái"
-                    >
-                        <MenuItem value="scheduled">Đã lên lịch (Scheduled)</MenuItem>
-                        <MenuItem value="completed">Đã hoàn thành (Completed)</MenuItem>
-                        <MenuItem value="cancelled">Đã hủy (Cancelled)</MenuItem>
-                        <MenuItem value="no-show">Không đến (No-show)</MenuItem>
-                    </Select>
+                  <InputLabel>Trạng thái</InputLabel>
+                  <Select
+                    name="status"
+                    value={formData.status}
+                    onChange={handleChange}
+                    label="Trạng thái"
+                  >
+                    <MenuItem value="scheduled">Đã lên lịch (Scheduled)</MenuItem>
+                    <MenuItem value="completed">Đã hoàn thành (Completed)</MenuItem>
+                    <MenuItem value="cancelled">Đã hủy (Cancelled)</MenuItem>
+                    <MenuItem value="no-show">Không đến (No-show)</MenuItem>
+                  </Select>
                 </FormControl>
 
                 {/* 4. Mô tả */}
@@ -259,7 +315,7 @@ function AppointmentForm() {
                   startIcon={<SaveIcon />}
                   disabled={loading}
                 >
-                  {loading ? 'Đang lưu...' : (isEdit ? 'Cập nhật' : 'Tạo lịch hẹn')}
+                  {loading ? 'Đang lưu...' :  (isEdit ? 'Cập nhật' : 'Tạo lịch hẹn')}
                 </Button>
               </Box>
 

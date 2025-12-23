@@ -9,27 +9,31 @@ import {
   CircularProgress,
   Card,
   CardContent,
-  Grid,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  Avatar,
-  Paper,
-  useTheme,
-  alpha,
+  Stack,
+  Autocomplete,
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
   Save as SaveIcon,
+  Cancel as CancelIcon,
   Science as LabIcon,
+  Add as AddIcon,
+  Edit as EditIcon,
+  LocalHospital as TreatmentIcon,
+  Business as BusinessIcon,
 } from '@mui/icons-material';
 import Layout from '../../components/Layout';
 import { labService, clinicService, treatmentService } from '../../services/api';
 
 function LabOrderForm() {
-  const { clinicId, labOrderId, treatmentId: urlTreatmentId } = useParams();
+  const { clinicId, labOrderId, treatmentId:  urlTreatmentId } = useParams();
   const navigate = useNavigate();
+  const isEdit = !!labOrderId;
+
   const [formData, setFormData] = useState({
     treatmentId: '',
     labPartnerId: '',
@@ -38,13 +42,15 @@ function LabOrderForm() {
     status: 'ORDERED',
     deliveryDate: '',
   });
+
   const [labPartners, setLabPartners] = useState([]);
   const [treatments, setTreatments] = useState([]);
+  const [selectedTreatment, setSelectedTreatment] = useState(null);
+  const [selectedLabPartner, setSelectedLabPartner] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [userRole, setUserRole] = useState('');
-  const theme = useTheme();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -69,13 +75,26 @@ function LabOrderForm() {
       setTreatments(treatmentsResponse.data);
 
       const storedUser = JSON.parse(localStorage.getItem('user'));
-      const currentMember = membersResponse.data.find(m => m.userId === storedUser.id);
+      const currentMember = membersResponse.data. find(m => m.userId === storedUser.id);
       setUserRole(currentMember?.role || '');
 
       // If editing an existing order, load its data
       if (labOrderId) {
         const orderResponse = await labService.getLabOrder(labOrderId);
         const order = orderResponse.data;
+
+        // Find and set selected treatment
+        const treatment = treatmentsResponse.data.find(t => t.id === order.treatmentId);
+        if (treatment) {
+          setSelectedTreatment(treatment);
+        }
+
+        // Find and set selected lab partner
+        const partner = partnersResponse.data.find(p => p.id === order.labPartnerId);
+        if (partner) {
+          setSelectedLabPartner(partner);
+        }
+
         setFormData({
           treatmentId: order.treatmentId || '',
           labPartnerId: order.labPartnerId || '',
@@ -86,6 +105,11 @@ function LabOrderForm() {
         });
       } else if (urlTreatmentId) {
         // If creating a new order from treatment detail, pre-fill treatment
+        const treatment = treatmentsResponse.data.find(t => t.id === parseInt(urlTreatmentId));
+        if (treatment) {
+          setSelectedTreatment(treatment);
+        }
+
         setFormData(prev => ({
           ...prev,
           treatmentId: urlTreatmentId,
@@ -108,6 +132,16 @@ function LabOrderForm() {
     });
   };
 
+  const handleTreatmentChange = (event, newValue) => {
+    setSelectedTreatment(newValue);
+    setFormData({ ...formData, treatmentId: newValue ?  newValue.id : '' });
+  };
+
+  const handleLabPartnerChange = (event, newValue) => {
+    setSelectedLabPartner(newValue);
+    setFormData({ ...formData, labPartnerId: newValue ?  newValue.id : '' });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -117,14 +151,14 @@ function LabOrderForm() {
       const submitData = {
         treatmentId: parseInt(formData.treatmentId),
         labPartnerId: parseInt(formData.labPartnerId),
-        description: formData.description,
+        description: formData. description,
         price: parseFloat(formData.price),
         status: formData.status,
-        deliveryDate: formData.deliveryDate || null,
+        deliveryDate: formData. deliveryDate || null,
       };
 
       if (labOrderId) {
-        // Update existing order with all fields in one call
+        // Update existing order
         await labService.updateLabOrder(clinicId, labOrderId, submitData);
       } else {
         // Create new order
@@ -152,170 +186,247 @@ function LabOrderForm() {
   return (
     <Layout showClinicMenu clinicId={clinicId} userRole={userRole}>
       <Box>
-        <Paper
-          elevation={0}
-          sx={{
-            background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.primary.light, 0.05)} 100%)`,
-            borderRadius: 3,
-            p: 4,
-            mb: 4,
-            border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-          }}
-        >
-          <Box display="flex" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={2}>
-            <Box display="flex" alignItems="center">
-              <Avatar
-                sx={{
-                  width: 64,
-                  height: 64,
-                  mr: 3,
-                  bgcolor: 'primary.main',
-                }}
-              >
-                <LabIcon sx={{ fontSize: 32 }} />
-              </Avatar>
-              <Box>
-                <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom>
-                  {labOrderId ? 'Chỉnh sửa Đơn Labo' : 'Tạo Đơn Labo Mới'}
-                </Typography>
-                <Typography variant="body1" color="text.secondary">
-                  {labOrderId ? 'Cập nhật thông tin đơn đặt labo' : 'Thêm đơn đặt labo mới'}
-                </Typography>
-              </Box>
-            </Box>
-            <Button
-              variant="outlined"
-              startIcon={<ArrowBackIcon />}
-              onClick={() => navigate(`/clinics/${clinicId}/lab-management`)}
-              sx={{ borderRadius: 2 }}
-            >
-              Quay lại
-            </Button>
+        {/* Header */}
+        <Box display="flex" alignItems="center" justifyContent="space-between" mb={3}>
+          <Box display="flex" alignItems="center">
+            {isEdit ? (
+              <EditIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
+            ) : (
+              <AddIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
+            )}
+            <Typography variant="h4" component="h1" fontWeight="bold">
+              {isEdit ? 'Chỉnh sửa Đơn Labo' : 'Tạo Đơn Labo Mới'}
+            </Typography>
           </Box>
-        </Paper>
+          <Button
+            variant="outlined"
+            startIcon={<ArrowBackIcon />}
+            onClick={() => navigate(`/clinics/${clinicId}/lab-management`)}
+          >
+            Quay lại danh sách
+          </Button>
+        </Box>
 
         {error && (
-          <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }} onClose={() => setError('')}>
+          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
             {error}
           </Alert>
         )}
 
-        <Card sx={{ borderRadius: 3 }}>
-          <CardContent sx={{ p: 4 }}>
+        <Card>
+          <CardContent>
             <Box component="form" onSubmit={handleSubmit}>
-              <Grid container spacing={3}>
-                <Grid item xs={12}>
-                  <FormControl fullWidth required>
-                    <InputLabel>Điều trị</InputLabel>
-                    <Select
-                      name="treatmentId"
-                      value={formData.treatmentId}
-                      onChange={handleChange}
-                      label="Điều trị"
-                      disabled={!!urlTreatmentId}
-                    >
-                      {treatments.map((treatment) => (
-                        <MenuItem key={treatment.id} value={treatment.id}>
-                          {treatment.patientName} - {treatment.description || 'N/A'} ({new Date(treatment.date).toLocaleDateString('vi-VN')})
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
+              
+              <Stack spacing={3}>
+                
+                <Box>
+                  <Typography variant="h6" component="h2" gutterBottom color="primary">
+                    <LabIcon sx={{ mr: 1, verticalAlign: 'middle' }} /> Thông tin Đơn Labo
+                  </Typography>
+                </Box>
 
-                <Grid item xs={12}>
-                  <FormControl fullWidth required>
-                    <InputLabel>Nhà cung cấp Labo</InputLabel>
-                    <Select
-                      name="labPartnerId"
-                      value={formData.labPartnerId}
-                      onChange={handleChange}
-                      label="Nhà cung cấp Labo"
-                    >
-                      {labPartners.map((partner) => (
-                        <MenuItem key={partner.id} value={partner.id}>
-                          {partner.name} - {partner.phone}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
+                {/* 1. Điều trị - AUTOCOMPLETE */}
+                <Autocomplete
+                  fullWidth
+                  options={treatments}
+                  value={selectedTreatment}
+                  onChange={handleTreatmentChange}
+                  disabled={!!urlTreatmentId} // Disable if pre-selected from treatment detail
+                  getOptionLabel={(option) => {
+                    const parts = [];
+                    if (option.patientName) parts.push(option.patientName);
+                    if (option.description) parts.push(option.description);
+                    if (option.date) {
+                      const date = new Date(option.date);
+                      parts.push(date.toLocaleDateString('vi-VN'));
+                    }
+                    return parts.join(' - ') || `Điều trị #${option.id}`;
+                  }}
+                  filterOptions={(options, { inputValue }) => {
+                    const searchTerm = inputValue. toLowerCase().trim();
+                    if (!searchTerm) return options;
+                    
+                    return options.filter(option => {
+                      const patientName = option.patientName?.toLowerCase() || '';
+                      const description = option.description?.toLowerCase() || '';
+                      const id = option.id?.toString() || '';
+                      return patientName.includes(searchTerm) || 
+                             description.includes(searchTerm) || 
+                             id.includes(searchTerm);
+                    });
+                  }}
+                  renderOption={(props, option) => (
+                    <Box component="li" {...props} sx={{ display: 'flex', alignItems:  'center', gap: 1, py: 1 }}>
+                      <TreatmentIcon sx={{ color: 'primary.main', fontSize: 20 }} />
+                      <Box>
+                        <Typography variant="body1" fontWeight="500">
+                          {option.patientName || 'Không rõ bệnh nhân'}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {option.description || 'Không có mô tả'}
+                          {option.date && ` • ${new Date(option.date).toLocaleDateString('vi-VN')}`}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {... params}
+                      label="Tìm kiếm điều trị *"
+                      placeholder="Nhập tên bệnh nhân hoặc mô tả..."
+                      required={! selectedTreatment}
+                      InputProps={{
+                        ... params.InputProps,
+                        startAdornment: (
+                          <>
+                            <TreatmentIcon sx={{ color:  'action.active', mr: 1, ml: 1 }} />
+                            {params.InputProps.startAdornment}
+                          </>
+                        ),
+                      }}
+                    />
+                  )}
+                  noOptionsText="Không tìm thấy điều trị"
+                  isOptionEqualToValue={(option, value) => option.id === value.id}
+                />
 
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Sản phẩm / Mô tả"
-                    name="description"
-                    value={formData.description}
+                {/* 2. Nhà cung cấp Labo - AUTOCOMPLETE */}
+                <Autocomplete
+                  fullWidth
+                  options={labPartners}
+                  value={selectedLabPartner}
+                  onChange={handleLabPartnerChange}
+                  getOptionLabel={(option) => {
+                    const parts = [option.name];
+                    if (option.phone) parts.push(option.phone);
+                    if (option. email) parts.push(option.email);
+                    return parts. join(' - ');
+                  }}
+                  filterOptions={(options, { inputValue }) => {
+                    const searchTerm = inputValue.toLowerCase().trim();
+                    if (!searchTerm) return options;
+                    
+                    return options.filter(option => {
+                      const name = option.name?.toLowerCase() || '';
+                      const phone = option.phone?.toLowerCase() || '';
+                      const email = option.email?.toLowerCase() || '';
+                      return name.includes(searchTerm) || 
+                             phone. includes(searchTerm) || 
+                             email.includes(searchTerm);
+                    });
+                  }}
+                  renderOption={(props, option) => (
+                    <Box component="li" {...props} sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1 }}>
+                      <BusinessIcon sx={{ color: 'secondary.main', fontSize: 20 }} />
+                      <Box>
+                        <Typography variant="body1" fontWeight="500">
+                          {option.name}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {option.phone && `SĐT: ${option.phone}`}
+                          {option.email && ` • ${option.email}`}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Tìm kiếm nhà cung cấp *"
+                      placeholder="Nhập tên, SĐT hoặc email..."
+                      required={!selectedLabPartner}
+                      InputProps={{
+                        ...params. InputProps,
+                        startAdornment: (
+                          <>
+                            <BusinessIcon sx={{ color: 'action.active', mr: 1, ml: 1 }} />
+                            {params.InputProps.startAdornment}
+                          </>
+                        ),
+                      }}
+                    />
+                  )}
+                  noOptionsText="Không tìm thấy nhà cung cấp"
+                  isOptionEqualToValue={(option, value) => option.id === value.id}
+                />
+
+                {/* 3. Mô tả sản phẩm */}
+                <TextField
+                  fullWidth
+                  label="Sản phẩm / Mô tả"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  multiline
+                  rows={4}
+                  placeholder="Mô tả chi tiết về sản phẩm/dịch vụ labo..."
+                />
+
+                {/* 4. Giá tiền */}
+                <TextField
+                  fullWidth
+                  label="Giá *"
+                  name="price"
+                  type="number"
+                  value={formData.price}
+                  onChange={handleChange}
+                  required
+                  inputProps={{ min:  0, step: 0.01 }}
+                  InputProps={{
+                    endAdornment: <Typography variant="body2" color="text.secondary">VND</Typography>
+                  }}
+                />
+
+                {/* 5. Trạng thái */}
+                <FormControl fullWidth>
+                  <InputLabel>Trạng thái</InputLabel>
+                  <Select
+                    name="status"
+                    value={formData.status}
                     onChange={handleChange}
-                    multiline
-                    rows={4}
-                    placeholder="Mô tả chi tiết về sản phẩm/dịch vụ labo..."
-                  />
-                </Grid>
+                    label="Trạng thái"
+                  >
+                    <MenuItem value="ORDERED">Đã đặt</MenuItem>
+                    <MenuItem value="RECEIVED">Đã nhận</MenuItem>
+                    <MenuItem value="INSTALLED">Đã lắp</MenuItem>
+                    <MenuItem value="CANCELED">Hủy</MenuItem>
+                  </Select>
+                </FormControl>
 
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Giá"
-                    name="price"
-                    type="number"
-                    value={formData.price}
-                    onChange={handleChange}
-                    required
-                    inputProps={{ min: 0, step: 0.01 }}
-                  />
-                </Grid>
+                {/* 6. Ngày giao hàng */}
+                <TextField
+                  fullWidth
+                  label="Ngày giao hàng"
+                  name="deliveryDate"
+                  type="date"
+                  value={formData.deliveryDate}
+                  onChange={handleChange}
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{ max: '9999-12-31' }}
+                />
 
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <InputLabel>Trạng thái</InputLabel>
-                    <Select
-                      name="status"
-                      value={formData.status}
-                      onChange={handleChange}
-                      label="Trạng thái"
-                    >
-                      <MenuItem value="ORDERED">Đã đặt</MenuItem>
-                      <MenuItem value="RECEIVED">Đã nhận</MenuItem>
-                      <MenuItem value="INSTALLED">Đã lắp</MenuItem>
-                      <MenuItem value="CANCELED">Hủy</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
+              </Stack>
+              {/* KẾT THÚC STACK */}
 
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Ngày giao hàng"
-                    name="deliveryDate"
-                    type="date"
-                    value={formData.deliveryDate}
-                    onChange={handleChange}
-                    InputLabelProps={{ shrink: true }}
-                  />
-                </Grid>
+              <Box display="flex" justifyContent="flex-end" gap={2} mt={4}>
+                <Button
+                  variant="outlined"
+                  startIcon={<CancelIcon />}
+                  onClick={() => navigate(`/clinics/${clinicId}/lab-management`)}
+                  disabled={submitting}
+                >
+                  Hủy bỏ
+                </Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  startIcon={<SaveIcon />}
+                  disabled={submitting}
+                >
+                  {submitting ? 'Đang lưu.. .' : (isEdit ? 'Cập nhật' : 'Tạo đơn')}
+                </Button>
+              </Box>
 
-                <Grid item xs={12}>
-                  <Box display="flex" gap={2} justifyContent="flex-end">
-                    <Button
-                      variant="outlined"
-                      onClick={() => navigate(`/clinics/${clinicId}/lab-management`)}
-                      disabled={submitting}
-                    >
-                      Hủy
-                    </Button>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      startIcon={<SaveIcon />}
-                      disabled={submitting}
-                    >
-                      {submitting ? 'Đang lưu...' : (labOrderId ? 'Cập nhật' : 'Tạo đơn')}
-                    </Button>
-                  </Box>
-                </Grid>
-              </Grid>
             </Box>
           </CardContent>
         </Card>
