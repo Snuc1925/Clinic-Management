@@ -213,14 +213,22 @@ function RevenueCalendar({ revenueData, expensesData, viewType, currentMonth, on
       <Box mt={2} display="flex" justifyContent="center" gap={2} flexWrap="wrap">
         <Box display="flex" alignItems="center" gap={1}>
           <Box sx={{ width: 16, height: 16, bgcolor: '#f5f5f5', border: '1px solid #e0e0e0', borderRadius: 0.5 }} />
-          <Typography variant="caption">Không có DT</Typography>
+          <Typography variant="caption">
+            {viewType === 'profit' ? 'Hòa vốn' : 'Không có'}
+          </Typography>
         </Box>
+        {viewType === 'profit' && (
+          <Box display="flex" alignItems="center" gap={1}>
+            <Box sx={{ width: 16, height: 16, bgcolor: '#ffcdd2', borderRadius: 0.5 }} />
+            <Typography variant="caption">Lỗ</Typography>
+          </Box>
+        )}
         <Box display="flex" alignItems="center" gap={1}>
           <Box sx={{ width: 16, height: 16, bgcolor: '#bbdefb', borderRadius: 0.5 }} />
           <Typography variant="caption">Thấp</Typography>
         </Box>
         <Box display="flex" alignItems="center" gap={1}>
-          <Box sx={{ width:  16, height: 16, bgcolor: '#42a5f5', borderRadius:  0.5 }} />
+          <Box sx={{ width: 16, height: 16, bgcolor: '#42a5f5', borderRadius: 0.5 }} />
           <Typography variant="caption">Trung bình</Typography>
         </Box>
         <Box display="flex" alignItems="center" gap={1}>
