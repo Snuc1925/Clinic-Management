@@ -62,7 +62,8 @@ public class ItemBatchService {
             transaction.setBatchId(saved.getId());
             transaction.setType("IMPORT");
             transaction.setQuantity(saved.getQuantityImported());
-            transaction.setReferenceType("MANUAL");
+            transaction.setDoctorId(userId);
+            transaction.setReason("Nhập kho");
             transaction.setTimestamp(LocalDateTime.now());
             inventoryTransactionRepository.save(transaction);
 
@@ -132,9 +133,8 @@ public class ItemBatchService {
         transaction.setBatchId(batch.getId());
         transaction.setType("EXPORT");
         transaction.setQuantity(request.getQuantity());
+        transaction.setDoctorId(userId);
         transaction.setReason(request.getReason());
-        transaction.setReferenceType(request.getReferenceType());
-        transaction.setReferenceId(request.getReferenceId());
         transaction.setTimestamp(LocalDateTime.now());
         inventoryTransactionRepository.save(transaction);
     }

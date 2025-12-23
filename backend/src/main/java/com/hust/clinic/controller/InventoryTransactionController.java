@@ -34,16 +34,6 @@ public class InventoryTransactionController {
         }
     }
 
-    @GetMapping("/treatments/{treatmentId}/inventory/transactions")
-    public ResponseEntity<?> getTreatmentTransactions(@PathVariable Long treatmentId) {
-        try {
-            List<InventoryTransactionResponse> transactions = inventoryTransactionService.getTreatmentTransactions(treatmentId);
-            return ResponseEntity.ok(transactions);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("{\"message\": \"" + e.getMessage() + "\"}");
-        }
-    }
-
     private Long getUserIdFromAuth(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         return userRepository.findByPhone(userDetails.getUsername())

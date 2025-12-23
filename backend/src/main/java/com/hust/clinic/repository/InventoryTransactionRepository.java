@@ -10,7 +10,6 @@ import java.util.List;
 @Repository
 public interface InventoryTransactionRepository extends JpaRepository<InventoryTransaction, Long> {
     List<InventoryTransaction> findByBatchId(Long batchId);
-    List<InventoryTransaction> findByReferenceTypeAndReferenceId(String referenceType, Long referenceId);
     
     @Query("SELECT t FROM InventoryTransaction t WHERE t.batchId IN " +
            "(SELECT b.id FROM ItemBatch b WHERE b.itemId IN " +

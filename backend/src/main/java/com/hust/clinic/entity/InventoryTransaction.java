@@ -26,12 +26,6 @@ public class InventoryTransaction {
     @Column(columnDefinition = "TEXT")
     private String reason;
 
-    @Column(name = "reference_type")
-    private String referenceType; // TREATMENT, LAB, MANUAL
-
-    @Column(name = "reference_id")
-    private Long referenceId;
-
     @Column(nullable = false)
     private LocalDateTime timestamp;
 
@@ -50,14 +44,12 @@ public class InventoryTransaction {
     }
 
     // Constructor đã cập nhật đầy đủ các tham số cần thiết
-    public InventoryTransaction(Long batchId, String type, Integer quantity, Long doctorId, String reason, String referenceType, Long referenceId, LocalDateTime timestamp) {
+    public InventoryTransaction(Long batchId, String type, Integer quantity, Long doctorId, String reason, LocalDateTime timestamp) {
         this.batchId = batchId;
         this.type = type;
         this.quantity = quantity;
         this.doctorId = doctorId;
         this.reason = reason;
-        this.referenceType = referenceType;
-        this.referenceId = referenceId;
         this.timestamp = timestamp;
     }
 
@@ -80,12 +72,6 @@ public class InventoryTransaction {
 
     public String getReason() { return reason; }
     public void setReason(String reason) { this.reason = reason; }
-
-    public String getReferenceType() { return referenceType; }
-    public void setReferenceType(String referenceType) { this.referenceType = referenceType; }
-
-    public Long getReferenceId() { return referenceId; }
-    public void setReferenceId(Long referenceId) { this.referenceId = referenceId; }
 
     public LocalDateTime getTimestamp() { return timestamp; }
     public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }

@@ -457,10 +457,6 @@ public class DataGenerator implements CommandLineRunner {
             transaction.setReason("Nhập hàng từ nhà cung cấp");
         }
         
-        // Set referenceType and referenceId to NULL as requested
-        transaction.setReferenceType(null);
-        transaction.setReferenceId(null);
-        
         transaction.setTimestamp(randomDateTimeBetween(
             LocalDateTime.of(2024, 1, 1, 0, 0),
             LocalDateTime.of(2025, 12, 31, 23, 59)
