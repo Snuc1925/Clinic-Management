@@ -1,0 +1,515 @@
+\section{Kiểm thử phần mềm}
+
+Hệ thống Quản lý Phòng khám đã được triển khai kiểm thử toàn diện với ba cấp độ: Unit Testing (Kiểm thử đơn vị), Integration Testing (Kiểm thử tích hợp) và Functional Testing (Kiểm thử chức năng). Tổng cộng 71 test cases đã được thực hiện với tỷ lệ thành công 100\%.
+
+\subsection{Tổng quan kiểm thử}
+
+Bảng \ref{tab:testing-summary} tóm tắt kết quả kiểm thử tổng thể:
+
+\begin{table}[h]
+\centering
+\caption{Tổng quan kết quả kiểm thử}
+\label{tab:testing-summary}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Loại kiểm thử} & \textbf{Số test} & \textbf{Thành công} & \textbf{Tỷ lệ} \\
+\hline
+Unit Testing & 57 & 57 & 100\% \\
+Integration Testing & 10 & 10 & 100\% \\
+Functional Testing & 4 & 4 & 100\% \\
+\hline
+\textbf{Tổng cộng} & \textbf{71} & \textbf{71} & \textbf{100\%} \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Unit Testing - Kiểm thử đơn vị}
+
+Kiểm thử đơn vị tập trung vào việc kiểm tra từng thành phần nghiệp vụ (service) một cách độc lập, sử dụng mock objects để mô phỏng các phụ thuộc. Tổng cộng 57 test cases đã được thực hiện trên 10 service classes.
+
+\subsubsection{Công nghệ và framework}
+
+\begin{itemize}
+    \item \textbf{JUnit 5}: Framework chính cho việc thực thi tests
+    \item \textbf{Mockito}: Framework mocking để tạo các đối tượng giả lập
+    \item \textbf{Maven Surefire Plugin}: Plugin chạy tests tự động
+    \item \textbf{Spring Boot Test}: Hỗ trợ kiểm thử ứng dụng Spring Boot
+\end{itemize}
+
+\subsubsection{Các module được kiểm thử}
+
+\paragraph{1. AuthServiceTest (5 tests)}
+Kiểm thử chức năng xác thực và đăng ký người dùng:
+\begin{itemize}
+    \item \texttt{testRegisterUser\_Success}: Xác minh đăng ký người dùng thành công
+    \item \texttt{testRegisterUser\_PhoneNumberAlreadyExists}: Kiểm tra validate số điện thoại trùng lặp
+    \item \texttt{testGetUserByPhone\_Success}: Kiểm tra lấy thông tin người dùng theo số điện thoại
+    \item \texttt{testGetUserByPhone\_UserNotFound}: Kiểm tra xử lý lỗi khi người dùng không tồn tại
+    \item \texttt{testPasswordEncoding\_OnRegistration}: Xác minh mã hóa mật khẩu đúng cách
+\end{itemize}
+
+\paragraph{2. UserServiceTest (7 tests)}
+Kiểm thử các thao tác quản lý người dùng:
+\begin{itemize}
+    \item \texttt{testGetAllUsers\_Success}: Kiểm tra lấy danh sách tất cả người dùng
+    \item \texttt{testGetUserById\_Success}: Kiểm tra lấy thông tin người dùng theo ID
+    \item \texttt{testGetUserById\_NotFound}: Kiểm tra xử lý lỗi với ID không hợp lệ
+    \item \texttt{testUpdateUser\_Success}: Kiểm tra cập nhật thông tin người dùng
+    \item \texttt{testUpdateUser\_WithPassword}: Kiểm tra thay đổi mật khẩu
+    \item \texttt{testDeleteUser\_Success}: Kiểm tra xóa người dùng
+    \item \texttt{testDeleteUser\_NotFound}: Kiểm tra xử lý lỗi khi xóa người dùng không tồn tại
+\end{itemize}
+
+\paragraph{3. ClinicMembershipServiceTest (6 tests)}
+Kiểm thử quản lý thành viên phòng khám:
+\begin{itemize}
+    \item \texttt{testJoinClinic\_Success}: Kiểm tra yêu cầu tham gia phòng khám thành công
+    \item \texttt{testJoinClinic\_AlreadyMember}: Kiểm tra ngăn chặn thành viên trùng lặp
+    \item \texttt{testJoinClinic\_ClinicNotFound}: Kiểm tra xử lý mã phòng khám không hợp lệ
+    \item \texttt{testGetClinicMembers\_Success}: Kiểm tra lấy danh sách thành viên
+    \item \texttt{testUpdateMemberStatus\_Success}: Kiểm tra cập nhật trạng thái thành viên
+    \item \texttt{testUpdateMemberStatus\_OnlyOwnerCanUpdate}: Kiểm tra quyền cập nhật của chủ phòng khám
+\end{itemize}
+
+\paragraph{4. PatientServiceTest (7 tests)}
+Kiểm thử quản lý hồ sơ bệnh nhân:
+\begin{itemize}
+    \item \texttt{testCreatePatient\_Success}: Kiểm tra tạo bệnh nhân mới
+    \item \texttt{testGetClinicPatients\_Success}: Kiểm tra lấy danh sách bệnh nhân
+    \item \texttt{testUpdatePatient\_Success}: Kiểm tra cập nhật thông tin bệnh nhân
+    \item \texttt{testDeletePatient\_Success}: Kiểm tra xóa bệnh nhân
+    \item \texttt{testCreatePatient\_WithoutMembership}: Kiểm tra validate quyền truy cập
+    \item \texttt{testGetPatient\_Success}: Kiểm tra lấy thông tin một bệnh nhân
+    \item \texttt{testGetPatient\_NotFound}: Kiểm tra xử lý lỗi với bệnh nhân không tồn tại
+\end{itemize}
+
+\paragraph{5. TreatmentServiceTest (6 tests)}
+Kiểm thử quản lý điều trị:
+\begin{itemize}
+    \item \texttt{testCreateTreatment\_Success}: Kiểm tra tạo đợt điều trị
+    \item \texttt{testCreateTreatment\_PatientNotInClinic}: Kiểm tra validate bệnh nhân
+    \item \texttt{testGetClinicTreatments\_Success}: Kiểm tra lấy danh sách điều trị
+    \item \texttt{testGetTreatment\_Success}: Kiểm tra lấy thông tin một đợt điều trị
+    \item \texttt{testGetTreatment\_NotFound}: Kiểm tra xử lý lỗi với điều trị không tồn tại
+    \item \texttt{testCreateTreatment\_WithoutMembership}: Kiểm tra validate quyền truy cập
+\end{itemize}
+
+\paragraph{6. PaymentServiceTest (6 tests)}
+Kiểm thử xử lý thanh toán:
+\begin{itemize}
+    \item \texttt{testAddPayment\_Success}: Kiểm tra tạo thanh toán
+    \item \texttt{testAddPayment\_TreatmentNotFound}: Kiểm tra validate điều trị
+    \item \texttt{testGetTreatmentPayments\_Success}: Kiểm tra lấy lịch sử thanh toán
+    \item \texttt{testAddPayment\_WithoutMembership}: Kiểm tra validate quyền truy cập
+    \item \texttt{testAddPayment\_ReducesDebt}: Kiểm tra tính toán giảm công nợ
+    \item \texttt{testGetTreatmentPayments\_WithoutMembership}: Kiểm tra quyền xem thanh toán
+\end{itemize}
+
+\paragraph{7. AppointmentServiceTest (5 tests)}
+Kiểm thử lịch hẹn:
+\begin{itemize}
+    \item \texttt{testCreateAppointment\_Success}: Kiểm tra tạo lịch hẹn
+    \item \texttt{testGetClinicAppointments\_Success}: Kiểm tra lấy danh sách lịch hẹn
+    \item \texttt{testUpdateAppointment\_Success}: Kiểm tra sửa lịch hẹn
+    \item \texttt{testUpdateAppointmentStatus\_Success}: Kiểm tra cập nhật trạng thái
+    \item \texttt{testGetCalendarData\_Success}: Kiểm tra lấy dữ liệu lịch
+\end{itemize}
+
+\paragraph{8. LabOrderServiceTest (6 tests)}
+Kiểm thử quản lý xét nghiệm:
+\begin{itemize}
+    \item \texttt{testCreateLabOrder\_Success}: Kiểm tra tạo phiếu xét nghiệm
+    \item \texttt{testCreateLabOrder\_TreatmentNotFound}: Kiểm tra validate điều trị
+    \item \texttt{testGetClinicLabOrders\_Success}: Kiểm tra lấy danh sách xét nghiệm
+    \item \texttt{testUpdateLabOrderStatus\_Success}: Kiểm tra cập nhật trạng thái
+    \item \texttt{testDeleteLabOrder\_Success}: Kiểm tra xóa phiếu xét nghiệm
+    \item \texttt{testCreateLabOrder\_LabPartnerNotFound}: Kiểm tra validate đối tác xét nghiệm
+\end{itemize}
+
+\paragraph{9. ItemBatchServiceTest (5 tests)}
+Kiểm thử quản lý lô hàng:
+\begin{itemize}
+    \item \texttt{testCreateItemBatch\_Success}: Kiểm tra tạo lô hàng mới
+    \item \texttt{testGetClinicBatches\_Success}: Kiểm tra lấy danh sách lô hàng
+    \item \texttt{testUpdateItemBatch\_Success}: Kiểm tra cập nhật thông tin lô hàng
+    \item \texttt{testDeleteItemBatch\_Success}: Kiểm tra xóa lô hàng
+    \item \texttt{testCreateItemBatch\_ItemNotFound}: Kiểm tra validate sản phẩm
+\end{itemize}
+
+\paragraph{10. InventoryTransactionServiceTest (4 tests)}
+Kiểm thử giao dịch kho:
+\begin{itemize}
+    \item \texttt{testCreateTransaction\_Success}: Kiểm tra tạo giao dịch
+    \item \texttt{testGetClinicTransactions\_Success}: Kiểm tra lấy danh sách giao dịch
+    \item \texttt{testCreateTransaction\_ItemNotFound}: Kiểm tra validate sản phẩm
+    \item \texttt{testUpdateInventoryQuantity}: Kiểm tra cập nhật số lượng tồn kho
+\end{itemize}
+
+\subsubsection{Mẫu kiểm thử}
+
+Tất cả các unit tests tuân theo pattern Arrange-Act-Assert:
+
+\begin{enumerate}
+    \item \textbf{Arrange}: Thiết lập dữ liệu test và mock behaviors
+    \item \textbf{Act}: Thực thi phương thức cần test
+    \item \textbf{Assert}: Xác minh kết quả mong đợi
+\end{enumerate}
+
+\subsubsection{Phạm vi kiểm thử}
+
+\textbf{Các kịch bản thành công:}
+\begin{itemize}
+    \item Tất cả các thao tác CRUD (Create, Read, Update, Delete)
+    \item Các thao tác liệt kê và truy xuất
+    \item Cập nhật trạng thái và chuyển đổi
+    \item Mapping và chuyển đổi dữ liệu
+\end{itemize}
+
+\textbf{Các kịch bản lỗi:}
+\begin{itemize}
+    \item Lỗi không tìm thấy tài nguyên
+    \item Validate dữ liệu trùng lặp
+    \item Lỗi phân quyền
+    \item Validate đầu vào không hợp lệ
+    \item Vi phạm quy tắc nghiệp vụ
+\end{itemize}
+
+\subsection{Integration Testing - Kiểm thử tích hợp}
+
+Kiểm thử tích hợp tập trung vào việc kiểm tra sự tương tác giữa các lớp Service và Repository với cơ sở dữ liệu thực tế (H2 in-memory database). Tổng cộng 10 test cases đã được thực hiện trên 2 integration test classes.
+
+\subsubsection{Cấu hình môi trường test}
+
+\begin{itemize}
+    \item \textbf{Database}: H2 in-memory database
+    \item \textbf{Transaction Management}: Mỗi test chạy trong transaction riêng và rollback sau khi hoàn thành
+    \item \textbf{Spring Context}: Full application context được khởi tạo cho integration tests
+    \item \textbf{Test Properties}: Cấu hình riêng trong file \texttt{application-test.properties}
+\end{itemize}
+
+\subsubsection{Các module được kiểm thử}
+
+\paragraph{1. PatientServiceIntegrationTest (5 tests)}
+
+Kiểm thử tích hợp cho dịch vụ quản lý bệnh nhân:
+
+\begin{itemize}
+    \item \texttt{testCreateAndRetrievePatient\_Integration}: 
+    \begin{itemize}
+        \item Tạo bệnh nhân mới qua Service layer
+        \item Xác minh dữ liệu được lưu chính xác vào database
+        \item Kiểm tra retrieve dữ liệu từ Repository
+    \end{itemize}
+    
+    \item \texttt{testCreateMultiplePatientsAndList\_Integration}:
+    \begin{itemize}
+        \item Tạo 3 bệnh nhân với thông tin khác nhau
+        \item Lấy danh sách tất cả bệnh nhân
+        \item Xác minh số lượng và thông tin bệnh nhân
+    \end{itemize}
+    
+    \item \texttt{testUpdatePatient\_Integration}:
+    \begin{itemize}
+        \item Tạo bệnh nhân mới
+        \item Cập nhật thông tin bệnh nhân
+        \item Xác minh thay đổi được lưu vào database
+    \end{itemize}
+    
+    \item \texttt{testDeletePatient\_Integration}:
+    \begin{itemize}
+        \item Tạo bệnh nhân và xác nhận tồn tại
+        \item Xóa bệnh nhân
+        \item Xác minh bệnh nhân không còn trong database
+    \end{itemize}
+    
+    \item \texttt{testCreatePatientWithoutMembership\_ThrowsException}:
+    \begin{itemize}
+        \item Kiểm tra nghiệp vụ phân quyền
+        \item Xác minh exception được throw khi user không phải thành viên
+    \end{itemize}
+\end{itemize}
+
+\paragraph{2. TreatmentServiceIntegrationTest (5 tests)}
+
+Kiểm thử tích hợp cho dịch vụ quản lý điều trị:
+
+\begin{itemize}
+    \item \texttt{testCreateAndRetrieveTreatment\_Integration}:
+    \begin{itemize}
+        \item Tạo đợt điều trị mới
+        \item Xác minh lưu trữ trong database
+        \item Kiểm tra retrieve thông tin chính xác
+    \end{itemize}
+    
+    \item \texttt{testCreateMultipleTreatmentsForPatient\_Integration}:
+    \begin{itemize}
+        \item Tạo nhiều đợt điều trị cho cùng bệnh nhân
+        \item Xác minh tất cả được lưu trữ
+        \item Kiểm tra liệt kê danh sách điều trị
+    \end{itemize}
+    
+    \item \texttt{testGetTreatmentById\_Integration}:
+    \begin{itemize}
+        \item Tạo điều trị với thông tin chi tiết
+        \item Lấy thông tin theo ID
+        \item Xác minh dữ liệu trả về chính xác
+    \end{itemize}
+    
+    \item \texttt{testCreateTreatmentWithInvalidPatient\_ThrowsException}:
+    \begin{itemize}
+        \item Thử tạo điều trị cho bệnh nhân không tồn tại
+        \item Xác minh exception được throw
+    \end{itemize}
+    
+    \item \texttt{testCreateTreatmentWithoutMembership\_ThrowsException}:
+    \begin{itemize}
+        \item Kiểm tra quy tắc phân quyền
+        \item Xác minh từ chối truy cập khi không có membership
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Kết quả kiểm thử tích hợp}
+
+\begin{table}[h]
+\centering
+\caption{Kết quả Integration Testing}
+\label{tab:integration-testing}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Test Class} & \textbf{Số tests} & \textbf{Kết quả} \\
+\hline
+PatientServiceIntegrationTest & 5 & 5/5 Pass \\
+TreatmentServiceIntegrationTest & 5 & 5/5 Pass \\
+\hline
+\textbf{Tổng} & \textbf{10} & \textbf{100\%} \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Functional Testing - Kiểm thử chức năng}
+
+Kiểm thử chức năng (End-to-End) mô phỏng các quy trình nghiệp vụ thực tế từ đầu đến cuối, kiểm tra luồng hoạt động hoàn chỉnh của hệ thống. Tổng cộng 4 test cases đã được thực hiện.
+
+\subsubsection{PatientTreatmentWorkflowTest (4 tests)}
+
+Kiểm thử quy trình quản lý bệnh nhân và điều trị:
+
+\paragraph{1. testCompletePatientJourney\_CreateUpdateTreatDelete}
+
+Quy trình hoàn chỉnh của bệnh nhân từ đăng ký đến xóa:
+
+\begin{enumerate}
+    \item \textbf{Bước 1 - Tạo bệnh nhân}: 
+    \begin{itemize}
+        \item Đăng ký bệnh nhân mới "Nguyen Van An"
+        \item Thông tin: SĐT 0123456789, địa chỉ Thanh Xuân, Hà Nội
+        \item Xác minh ID và thông tin được tạo chính xác
+    \end{itemize}
+    
+    \item \textbf{Bước 2 - Cập nhật thông tin}:
+    \begin{itemize}
+        \item Thay đổi SĐT thành 0987654321
+        \item Cập nhật tên thành "Nguyen Van An - Đã cập nhật"
+        \item Đổi địa chỉ sang Cầu Giấy
+        \item Xác minh cập nhật thành công
+    \end{itemize}
+    
+    \item \textbf{Bước 3 - Tạo điều trị lần 1}:
+    \begin{itemize}
+        \item Chẩn đoán: "Khám và điều trị cảm cúm"
+        \item Chi phí: 500,000 VNĐ
+        \item Xác minh tạo thành công
+    \end{itemize}
+    
+    \item \textbf{Bước 4 - Tạo điều trị lần 2}:
+    \begin{itemize}
+        \item Chẩn đoán: "Tái khám và kiểm tra sức khỏe"
+        \item Chi phí: 300,000 VNĐ
+        \item Ngày tái khám: 7 ngày sau lần khám đầu
+    \end{itemize}
+    
+    \item \textbf{Bước 5 - Kiểm tra danh sách}:
+    \begin{itemize}
+        \item Lấy danh sách tất cả điều trị
+        \item Xác minh có ít nhất 2 điều trị
+    \end{itemize}
+    
+    \item \textbf{Bước 6 - Xóa bệnh nhân}:
+    \begin{itemize}
+        \item Thực hiện xóa bệnh nhân
+        \item Xác minh bệnh nhân không còn trong hệ thống
+    \end{itemize}
+\end{enumerate}
+
+\paragraph{2. testMultiplePatientsWithDifferentTreatments}
+
+Kiểm thử quản lý nhiều bệnh nhân đồng thời:
+
+\begin{itemize}
+    \item \textbf{Tạo 3 bệnh nhân}:
+    \begin{itemize}
+        \item Bệnh nhân 1: Trần Thị B - SĐT 0111111111
+        \item Bệnh nhân 2: Lê Văn C - SĐT 0222222222
+        \item Bệnh nhân 3: Phạm Thị D - SĐT 0333333333
+    \end{itemize}
+    
+    \item \textbf{Tạo điều trị cho từng bệnh nhân}:
+    \begin{itemize}
+        \item Bệnh nhân 1: 2 đợt điều trị (viêm họng 400k, tái khám 200k)
+        \item Bệnh nhân 2: 1 đợt điều trị (khám tổng quát 800k)
+        \item Bệnh nhân 3: 3 đợt điều trị (đau bụng 600k, xét nghiệm 150k, tái khám 200k)
+    \end{itemize}
+    
+    \item \textbf{Xác minh kết quả}:
+    \begin{itemize}
+        \item Tổng số bệnh nhân: 3
+        \item Tổng số điều trị: 6
+        \item Mỗi điều trị gắn đúng với bệnh nhân
+    \end{itemize}
+\end{itemize}
+
+\paragraph{3. testPatientLifecycle\_FromRegistrationToMultipleTreatments}
+
+Chu trình điều trị liên tục của bệnh nhân:
+
+\begin{enumerate}
+    \item \textbf{Đăng ký bệnh nhân VIP}: Hoàng Văn E
+    \item \textbf{Lần khám 1}: Khám sức khỏe tổng quát - 1,000,000 VNĐ
+    \item \textbf{Lần khám 2}: Điều trị theo kết quả xét nghiệm - 1,500,000 VNĐ
+    \item \textbf{Lần khám 3}: Tái khám và đánh giá kết quả - 500,000 VNĐ
+    \item \textbf{Tổng chi phí}: 3,000,000 VNĐ
+    \item \textbf{Xác minh}: Tất cả 3 đợt điều trị tồn tại và retrieve được
+\end{enumerate}
+
+\paragraph{4. testPatientNotFound\_ThrowsException}
+
+Kiểm thử xử lý lỗi:
+
+\begin{itemize}
+    \item Thử tạo điều trị cho bệnh nhân ID = 99999 (không tồn tại)
+    \item Xác minh hệ thống throw RuntimeException
+    \item Đảm bảo không có dữ liệu rác được tạo
+\end{itemize}
+
+\subsubsection{Kết quả kiểm thử chức năng}
+
+\begin{table}[h]
+\centering
+\caption{Kết quả Functional Testing}
+\label{tab:functional-testing}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Test Case} & \textbf{Số bước} & \textbf{Kết quả} \\
+\hline
+Complete Patient Journey & 6 & Pass \\
+Multiple Patients Management & 3 & Pass \\
+Patient Lifecycle & 6 & Pass \\
+Error Handling & 1 & Pass \\
+\hline
+\textbf{Tổng} & \textbf{16} & \textbf{100\%} \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Kết quả tổng hợp}
+
+\subsubsection{Thống kê chi tiết}
+
+\begin{table}[h]
+\centering
+\caption{Thống kê chi tiết các test cases}
+\label{tab:detailed-stats}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Loại} & \textbf{Test Classes} & \textbf{Test Cases} & \textbf{Pass Rate} \\
+\hline
+Unit Tests & 10 & 57 & 100\% \\
+Integration Tests & 2 & 10 & 100\% \\
+Functional Tests & 1 & 4 & 100\% \\
+\hline
+\textbf{Tổng cộng} & \textbf{13} & \textbf{71} & \textbf{100\%} \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Phạm vi kiểm thử theo module}
+
+Bảng \ref{tab:coverage-by-module} thể hiện phạm vi kiểm thử theo từng module chức năng:
+
+\begin{table}[h]
+\centering
+\caption{Phạm vi kiểm thử theo module}
+\label{tab:coverage-by-module}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Module} & \textbf{Unit} & \textbf{Integration} & \textbf{Functional} \\
+\hline
+Xác thực (Auth) & 5 & - & - \\
+Người dùng (User) & 7 & - & - \\
+Thành viên (Membership) & 6 & - & - \\
+Bệnh nhân (Patient) & 7 & 5 & 4 \\
+Điều trị (Treatment) & 6 & 5 & 4 \\
+Thanh toán (Payment) & 6 & - & - \\
+Lịch hẹn (Appointment) & 5 & - & - \\
+Xét nghiệm (Lab Order) & 6 & - & - \\
+Lô hàng (Item Batch) & 5 & - & - \\
+Giao dịch kho (Inventory) & 4 & - & - \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Cách chạy tests}
+
+\subsubsection{Chạy tất cả tests}
+
+\begin{verbatim}
+cd backend
+mvn test
+\end{verbatim}
+
+\subsubsection{Chạy test class cụ thể}
+
+\begin{verbatim}
+# Unit test
+mvn test -Dtest=UserServiceTest
+mvn test -Dtest=PatientServiceTest
+
+# Integration test
+mvn test -Dtest=PatientServiceIntegrationTest
+
+# Functional test
+mvn test -Dtest=PatientTreatmentWorkflowTest
+\end{verbatim}
+
+\subsubsection{Chạy với clean build}
+
+\begin{verbatim}
+mvn clean test
+\end{verbatim}
+
+\subsection{Best Practices áp dụng}
+
+\begin{enumerate}
+    \item \textbf{Test Isolation}: Mỗi test độc lập, không phụ thuộc vào thứ tự thực thi
+    \item \textbf{Meaningful Names}: Tên test mô tả rõ ràng hành vi được kiểm thử
+    \item \textbf{AAA Pattern}: Tuân thủ pattern Arrange-Act-Assert
+    \item \textbf{Mock Dependencies}: Sử dụng mock cho external dependencies
+    \item \textbf{Both Paths}: Kiểm thử cả success và failure paths
+    \item \textbf{Setup Methods}: Sử dụng @BeforeEach để maintain test data
+    \item \textbf{Transaction Rollback}: Mỗi test rollback để đảm bảo database sạch
+\end{enumerate}
+
+\subsection{Kết luận}
+
+Hệ thống Quản lý Phòng khám đã được kiểm thử toàn diện với:
+
+\begin{itemize}
+    \item \textbf{71 test cases} covering 3 testing levels
+    \item \textbf{100\% pass rate} - không có lỗi hay test thất bại
+    \item \textbf{10 modules} được kiểm thử kỹ lưỡng
+    \item \textbf{Comprehensive coverage} bao gồm cả success và error scenarios
+    \item \textbf{Real database integration} với H2 in-memory database
+    \item \textbf{End-to-end workflows} mô phỏng quy trình thực tế
+\end{itemize}
+
+Kết quả kiểm thử cho thấy hệ thống hoạt động ổn định, đáp ứng đúng các yêu cầu nghiệp vụ và xử lý tốt các trường hợp lỗi. Tất cả các chức năng quan trọng từ xác thực người dùng, quản lý bệnh nhân, điều trị, thanh toán đến quản lý kho đều được kiểm thử kỹ lưỡng và hoạt động chính xác.
