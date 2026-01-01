@@ -1,0 +1,493 @@
+\subsection{Xác định thông tin cơ bản cho nghiệp vụ của bài toán}
+
+Hệ thống quản lý phòng khám nha khoa được thiết kế cho các phòng khám nhỏ với hai nhóm người dùng chính: Bác sĩ (Owner/Doctor) và Nhân viên (Staff). Dưới đây là phân tích các nghiệp vụ chính của hệ thống:
+
+\begin{table}[h]
+\centering
+\caption{Phân tích nghiệp vụ quản lý bệnh nhân}
+\begin{tabular}{|p{4cm}|p{5cm}|p{4.5cm}|}
+\hline
+\textbf{Input} & \textbf{Process} & \textbf{Output} \\
+\hline
+Thông tin bệnh nhân (họ tên, số điện thoại, địa chỉ, ngày sinh, ghi chú) & Đăng ký và lưu trữ thông tin bệnh nhân vào cơ sở dữ liệu, kiểm tra tính hợp lệ của dữ liệu & Hồ sơ bệnh nhân được tạo, mã ID bệnh nhân, thông báo thành công \\
+\hline
+Mã ID bệnh nhân, từ khóa tìm kiếm & Tìm kiếm bệnh nhân theo tên, số điện thoại hoặc mã ID & Danh sách bệnh nhân phù hợp, thông tin chi tiết bệnh nhân \\
+\hline
+Mã ID bệnh nhân, thông tin cập nhật & Cập nhật thông tin bệnh nhân trong hệ thống & Hồ sơ bệnh nhân được cập nhật, thông báo thành công \\
+\hline
+Mã ID bệnh nhân & Xóa thông tin bệnh nhân khỏi hệ thống & Xác nhận xóa, cập nhật cơ sở dữ liệu \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Phân tích nghiệp vụ quản lý lịch hẹn}
+\begin{tabular}{|p{4cm}|p{5cm}|p{4.5cm}|}
+\hline
+\textbf{Input} & \textbf{Process} & \textbf{Output} \\
+\hline
+ID bệnh nhân, ID bác sĩ, thời gian hẹn, mô tả & Tạo lịch hẹn mới, kiểm tra xung đột lịch, gán trạng thái "scheduled" & Lịch hẹn được tạo với mã ID, thông báo xác nhận \\
+\hline
+Ngày, tuần, tháng cần xem & Truy vấn lịch hẹn theo khoảng thời gian, sắp xếp theo thời gian & Danh sách lịch hẹn, hiển thị dạng lịch hoặc danh sách \\
+\hline
+Mã ID lịch hẹn, trạng thái mới & Cập nhật trạng thái lịch hẹn (scheduled, completed, cancelled) & Lịch hẹn được cập nhật, thông báo cho các bên liên quan \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Phân tích nghiệp vụ quản lý điều trị}
+\begin{tabular}{|p{4cm}|p{5cm}|p{4.5cm}|}
+\hline
+\textbf{Input} & \textbf{Process} & \textbf{Output} \\
+\hline
+ID bệnh nhân, ID bác sĩ, ngày điều trị, mô tả, tổng chi phí & Tạo hồ sơ điều trị, liên kết với bệnh nhân và bác sĩ & Hồ sơ điều trị được tạo, mã ID điều trị \\
+\hline
+Mã ID điều trị & Xem chi tiết điều trị, lịch sử thanh toán & Thông tin điều trị chi tiết, danh sách thanh toán liên quan \\
+\hline
+Mã ID điều trị, số tiền, phương thức thanh toán & Ghi nhận thanh toán, cập nhật công nợ & Phiếu thu, cập nhật trạng thái thanh toán \\
+\hline
+Mã ID điều trị, thông tin cập nhật & Sửa đổi thông tin điều trị & Hồ sơ điều trị được cập nhật \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Phân tích nghiệp vụ quản lý tồn kho}
+\begin{tabular}{|p{4cm}|p{5cm}|p{4.5cm}|}
+\hline
+\textbf{Input} & \textbf{Process} & \textbf{Output} \\
+\hline
+Thông tin vật tư (tên, danh mục, số lượng, giá, ngày hết hạn) & Thêm vật tư vào kho, phân loại theo danh mục (thuốc, vật tư, thiết bị) & Mặt hàng tồn kho được tạo, cảnh báo mức tồn kho tối thiểu \\
+\hline
+Mã ID vật tư, số lượng nhập/xuất & Ghi nhận giao dịch nhập/xuất kho, cập nhật số lượng tồn & Phiếu nhập/xuất kho, cập nhật số lượng tồn kho \\
+\hline
+Ngày, khoảng thời gian & Kiểm tra vật tư sắp hết hạn, tồn kho dưới mức tối thiểu & Danh sách cảnh báo, báo cáo tồn kho \\
+\hline
+Thông tin nhà cung cấp & Quản lý danh sách nhà cung cấp & Hồ sơ nhà cung cấp, thông tin liên hệ \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Phân tích nghiệp vụ quản lý đơn đặt labo}
+\begin{tabular}{|p{4cm}|p{5cm}|p{4.5cm}|}
+\hline
+\textbf{Input} & \textbf{Process} & \textbf{Output} \\
+\hline
+ID điều trị, ID đối tác labo, mô tả, giá, ngày giao & Tạo đơn đặt labo, gán trạng thái "ORDERED" & Đơn đặt labo với mã ID, xác nhận đặt hàng \\
+\hline
+Mã ID đơn labo & Xem chi tiết đơn labo, theo dõi trạng thái & Thông tin đơn labo, trạng thái hiện tại \\
+\hline
+Mã ID đơn labo, trạng thái mới & Cập nhật trạng thái (ORDERED, RECEIVED, INSTALLED, CANCELED) & Đơn labo được cập nhật, thông báo cho bác sĩ \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Phân tích nghiệp vụ báo cáo thống kê}
+\begin{tabular}{|p{4cm}|p{5cm}|p{4.5cm}|}
+\hline
+\textbf{Input} & \textbf{Process} & \textbf{Output} \\
+\hline
+Khoảng thời gian (tuần, tháng, năm) & Tính toán doanh thu, chi phí, lợi nhuận theo ngày & Báo cáo doanh thu chi tiết, biểu đồ doanh thu theo ngày \\
+\hline
+Khoảng thời gian, ID nhân viên & Phân tích hiệu suất làm việc của nhân viên & Báo cáo số lượng điều trị, doanh thu theo nhân viên \\
+\hline
+ID phòng khám, khoảng thời gian & Thống kê thanh toán, công nợ & Báo cáo tài chính tổng hợp \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Xây dựng biểu đồ mô tả nghiệp vụ và phân cấp chức năng}
+
+\textbf{Biểu đồ hoạt động mô tả nghiệp vụ chính:}
+
+Do hạn chế về công cụ sinh biểu đồ, dưới đây là mô tả luồng hoạt động chính của hệ thống dưới dạng văn bản có cấu trúc:
+
+\textbf{Quy trình điều trị bệnh nhân (Treatment Workflow):}
+\begin{enumerate}
+\item \textbf{Bắt đầu:} Bệnh nhân đến phòng khám
+\item \textbf{Kiểm tra:} Bệnh nhân đã có hồ sơ?
+    \begin{itemize}
+    \item Nếu KHÔNG: Nhân viên đăng ký hồ sơ bệnh nhân mới $\rightarrow$ Lưu vào hệ thống
+    \item Nếu CÓ: Tìm kiếm hồ sơ bệnh nhân trong hệ thống
+    \end{itemize}
+\item \textbf{Kiểm tra:} Có lịch hẹn trước không?
+    \begin{itemize}
+    \item Nếu CÓ: Cập nhật trạng thái lịch hẹn thành "completed"
+    \item Nếu KHÔNG: Tiếp tục quy trình
+    \end{itemize}
+\item \textbf{Hoạt động:} Bác sĩ khám và điều trị bệnh nhân
+\item \textbf{Hoạt động:} Tạo hồ sơ điều trị (Treatment Record)
+    \begin{itemize}
+    \item Nhập thông tin: Mô tả triệu chứng, chẩn đoán, phương pháp điều trị
+    \item Nhập tổng chi phí điều trị
+    \end{itemize}
+\item \textbf{Quyết định:} Cần đặt hàng labo?
+    \begin{itemize}
+    \item Nếu CÓ: Tạo đơn đặt labo $\rightarrow$ Gửi cho đối tác labo
+    \item Nếu KHÔNG: Tiếp tục
+    \end{itemize}
+\item \textbf{Quyết định:} Cần sử dụng vật tư từ kho?
+    \begin{itemize}
+    \item Nếu CÓ: Tạo phiếu xuất kho $\rightarrow$ Cập nhật tồn kho
+    \item Nếu KHÔNG: Tiếp tục
+    \end{itemize}
+\item \textbf{Hoạt động:} Thanh toán
+    \begin{itemize}
+    \item Bệnh nhân thanh toán toàn bộ $\rightarrow$ Tạo phiếu thu
+    \item Bệnh nhân thanh toán một phần $\rightarrow$ Ghi nhận công nợ
+    \end{itemize}
+\item \textbf{Quyết định:} Cần hẹn tái khám?
+    \begin{itemize}
+    \item Nếu CÓ: Tạo lịch hẹn cho lần khám tiếp theo
+    \item Nếu KHÔNG: Tiếp tục
+    \end{itemize}
+\item \textbf{Kết thúc:} Hoàn thành quy trình điều trị
+\end{enumerate}
+
+\vspace{1em}
+
+\textbf{Biểu đồ phân cấp chức năng (Business Function Diagram):}
+
+Hệ thống được tổ chức theo cấu trúc phân cấp như sau:
+
+\textbf{Cấp 0: Hệ thống quản lý phòng khám nha khoa}
+
+\textbf{Cấp 1: Các chức năng chính}
+\begin{itemize}
+\item 1. Quản lý phòng khám
+\item 2. Quản lý bệnh nhân
+\item 3. Quản lý lịch hẹn
+\item 4. Quản lý điều trị
+\item 5. Quản lý tồn kho
+\item 6. Quản lý đơn đặt labo
+\item 7. Báo cáo và thống kê
+\item 8. Quản lý người dùng
+\end{itemize}
+
+\textbf{Cấp 2: Phân rã chức năng chi tiết}
+
+\textbf{1. Quản lý phòng khám}
+\begin{itemize}
+\item 1.1. Tạo phòng khám mới
+\item 1.2. Tham gia phòng khám (bằng mã code)
+\item 1.3. Quản lý thành viên
+    \begin{itemize}
+    \item 1.3.1. Duyệt yêu cầu tham gia
+    \item 1.3.2. Thiết lập lương cho thành viên
+    \item 1.3.3. Xóa thành viên
+    \end{itemize}
+\item 1.4. Cập nhật thông tin phòng khám
+\end{itemize}
+
+\textbf{2. Quản lý bệnh nhân}
+\begin{itemize}
+\item 2.1. Thêm bệnh nhân mới
+\item 2.2. Tìm kiếm bệnh nhân
+\item 2.3. Xem chi tiết hồ sơ bệnh nhân
+\item 2.4. Cập nhật thông tin bệnh nhân
+\item 2.5. Xóa bệnh nhân
+\item 2.6. Xem lịch sử điều trị
+\end{itemize}
+
+\textbf{3. Quản lý lịch hẹn}
+\begin{itemize}
+\item 3.1. Tạo lịch hẹn mới
+\item 3.2. Xem lịch hẹn (dạng danh sách)
+\item 3.3. Xem lịch hẹn (dạng lịch)
+\item 3.4. Cập nhật trạng thái lịch hẹn
+\item 3.5. Hủy lịch hẹn
+\item 3.6. Tìm kiếm lịch hẹn
+\end{itemize}
+
+\textbf{4. Quản lý điều trị}
+\begin{itemize}
+\item 4.1. Tạo hồ sơ điều trị
+\item 4.2. Xem danh sách điều trị
+\item 4.3. Xem chi tiết điều trị
+\item 4.4. Cập nhật thông tin điều trị
+\item 4.5. Quản lý thanh toán
+    \begin{itemize}
+    \item 4.5.1. Ghi nhận thanh toán
+    \item 4.5.2. Xem lịch sử thanh toán
+    \item 4.5.3. Theo dõi công nợ
+    \end{itemize}
+\end{itemize}
+
+\textbf{5. Quản lý tồn kho}
+\begin{itemize}
+\item 5.1. Quản lý vật tư
+    \begin{itemize}
+    \item 5.1.1. Thêm vật tư mới
+    \item 5.1.2. Cập nhật thông tin vật tư
+    \item 5.1.3. Xóa vật tư
+    \end{itemize}
+\item 5.2. Quản lý giao dịch kho
+    \begin{itemize}
+    \item 5.2.1. Nhập kho
+    \item 5.2.2. Xuất kho
+    \item 5.2.3. Xem lịch sử giao dịch
+    \end{itemize}
+\item 5.3. Quản lý nhà cung cấp
+    \begin{itemize}
+    \item 5.3.1. Thêm nhà cung cấp
+    \item 5.3.2. Cập nhật thông tin
+    \item 5.3.3. Xóa nhà cung cấp
+    \end{itemize}
+\item 5.4. Cảnh báo tồn kho
+    \begin{itemize}
+    \item 5.4.1. Cảnh báo sắp hết hàng
+    \item 5.4.2. Cảnh báo sắp hết hạn
+    \end{itemize}
+\end{itemize}
+
+\textbf{6. Quản lý đơn đặt labo}
+\begin{itemize}
+\item 6.1. Quản lý đối tác labo
+    \begin{itemize}
+    \item 6.1.1. Thêm đối tác
+    \item 6.1.2. Cập nhật thông tin
+    \item 6.1.3. Xóa đối tác
+    \end{itemize}
+\item 6.2. Tạo đơn đặt labo
+\item 6.3. Xem danh sách đơn labo
+\item 6.4. Cập nhật trạng thái đơn labo
+\item 6.5. Hủy đơn labo
+\end{itemize}
+
+\textbf{7. Báo cáo và thống kê}
+\begin{itemize}
+\item 7.1. Báo cáo doanh thu
+    \begin{itemize}
+    \item 7.1.1. Báo cáo theo tuần
+    \item 7.1.2. Báo cáo theo tháng
+    \item 7.1.3. Báo cáo theo năm
+    \item 7.1.4. Báo cáo tùy chỉnh
+    \end{itemize}
+\item 7.2. Báo cáo hiệu suất nhân viên
+\item 7.3. Báo cáo tài chính
+    \begin{itemize}
+    \item 7.3.1. Tổng doanh thu
+    \item 7.3.2. Tổng chi phí
+    \item 7.3.3. Lợi nhuận/Lỗ
+    \end{itemize}
+\item 7.4. Xuất báo cáo
+\end{itemize}
+
+\textbf{8. Quản lý người dùng}
+\begin{itemize}
+\item 8.1. Đăng ký tài khoản
+\item 8.2. Đăng nhập
+\item 8.3. Xem thông tin cá nhân
+\item 8.4. Cập nhật thông tin cá nhân
+\item 8.5. Đổi mật khẩu
+\item 8.6. Đăng xuất
+\end{itemize}
+
+\vspace{1em}
+
+\textbf{Mô tả chi tiết các chức năng:}
+
+\begin{table}[h]
+\centering
+\caption{Mô tả các chức năng chính của hệ thống}
+\scriptsize
+\begin{tabular}{|p{3.5cm}|p{5cm}|p{5cm}|}
+\hline
+\textbf{Tên chức năng} & \textbf{Mô tả} & \textbf{Đánh giá khả năng thực hiện} \\
+\hline
+Quản lý phòng khám & Cho phép tạo và quản lý thông tin phòng khám, bao gồm tên, mã code 6 ký tự, quản lý thành viên và thiết lập lương. & Nhân lực: 1 developer. Thời gian: 3 ngày. Công nghệ: Spring Boot + React + MySQL. Môi trường: Web-based, cross-platform. \\
+\hline
+Thêm bệnh nhân mới & Đăng ký thông tin bệnh nhân bao gồm họ tên, số điện thoại, địa chỉ, ngày sinh, ghi chú. Kiểm tra tính hợp lệ của dữ liệu đầu vào. & Nhân lực: 1 developer. Thời gian: 1 ngày. Công nghệ: Form validation với React, JPA entity validation. Môi trường: Web form. \\
+\hline
+Tìm kiếm bệnh nhân & Cho phép tìm kiếm bệnh nhân theo tên, số điện thoại hoặc mã ID. Hỗ trợ tìm kiếm không dấu tiếng Việt. & Nhân lực: 1 developer. Thời gian: 1 ngày. Công nghệ: MySQL fulltext search hoặc JPA query. Môi trường: Backend API + Frontend search bar. \\
+\hline
+Tạo lịch hẹn & Tạo lịch hẹn cho bệnh nhân với bác sĩ cụ thể, kiểm tra xung đột lịch. & Nhân lực: 1 developer. Thời gian: 2 ngày. Công nghệ: DateTime handling, conflict detection algorithm. Môi trường: Web interface với date-time picker. \\
+\hline
+Xem lịch dạng calendar & Hiển thị lịch hẹn dưới dạng lịch theo ngày/tuần/tháng với khả năng tương tác. & Nhân lực: 1 developer. Thời gian: 3 ngày. Công nghệ: React calendar library (FullCalendar.js). Môi trường: Modern web browsers. \\
+\hline
+Tạo hồ sơ điều trị & Ghi nhận thông tin điều trị bao gồm chẩn đoán, phương pháp điều trị, tổng chi phí. Liên kết với bệnh nhân và bác sĩ điều trị. & Nhân lực: 1 developer. Thời gian: 2 ngày. Công nghệ: JPA relationships, transaction management. Môi trường: Web form với rich text editor. \\
+\hline
+Quản lý thanh toán & Ghi nhận các khoản thanh toán, theo dõi công nợ, hỗ trợ thanh toán từng phần. & Nhân lực: 1 developer. Thời gian: 2 ngày. Công nghệ: BigDecimal for currency, payment tracking. Môi trường: Web interface. \\
+\hline
+Quản lý tồn kho & Quản lý vật tư y tế, thuốc, thiết bị. Theo dõi số lượng tồn, ngày hết hạn, cảnh báo tồn kho thấp. & Nhân lực: 1-2 developers. Thời gian: 5 ngày. Công nghệ: Inventory tracking algorithms, batch management. Môi trường: Web-based inventory system. \\
+\hline
+Nhập/Xuất kho & Ghi nhận giao dịch nhập/xuất kho, cập nhật số lượng tồn kho tự động. & Nhân lực: 1 developer. Thời gian: 2 ngày. Công nghệ: Database transactions, ACID compliance. Môi trường: Web forms. \\
+\hline
+Quản lý nhà cung cấp & Lưu trữ thông tin nhà cung cấp bao gồm tên, người liên hệ, điện thoại, email, điều khoản thanh toán. & Nhân lực: 1 developer. Thời gian: 1 ngày. Công nghệ: CRUD operations, JPA. Môi trường: Web interface. \\
+\hline
+Tạo đơn đặt labo & Tạo đơn đặt hàng cho phòng labo với thông tin mô tả, giá, ngày giao hàng dự kiến. & Nhân lực: 1 developer. Thời gian: 2 ngày. Công nghệ: Order management system, status tracking. Môi trường: Web forms. \\
+\hline
+Cập nhật trạng thái labo & Theo dõi và cập nhật trạng thái đơn labo (ORDERED, RECEIVED, INSTALLED, CANCELED). & Nhân lực: 1 developer. Thời gian: 1 ngày. Công nghệ: State machine, status workflow. Môi trường: Web interface. \\
+\hline
+Báo cáo doanh thu & Tính toán và hiển thị doanh thu theo tuần/tháng/năm, so sánh với chi phí, tính lợi nhuận. & Nhân lực: 1 developer. Thời gian: 3 ngày. Công nghệ: SQL aggregation, Recharts for visualization. Môi trường: Dashboard with charts. \\
+\hline
+Báo cáo hiệu suất nhân viên & Thống kê số lượng điều trị, doanh thu theo từng nhân viên trong khoảng thời gian. & Nhân lực: 1 developer. Thời gian: 2 ngày. Công nghệ: SQL GROUP BY, data aggregation. Môi trường: Web dashboard. \\
+\hline
+Xác thực và phân quyền & Đăng ký, đăng nhập với JWT, phân quyền Owner/Staff với các chức năng khác nhau. & Nhân lực: 1 developer. Thời gian: 3 ngày. Công nghệ: Spring Security, JWT, role-based access control. Môi trường: Stateless authentication. \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Xây dựng kế hoạch dự án đơn giản}
+
+\textbf{Bảng 1: Phân rã công việc và ước lượng thời gian}
+
+\begin{table}[h]
+\centering
+\caption{Kế hoạch công việc dự án}
+\begin{tabular}{|p{7cm}|p{3cm}|p{2cm}|}
+\hline
+\textbf{Công việc} & \textbf{Thời gian (giờ)} & \textbf{Số người} \\
+\hline
+\textbf{1. Thiết lập dự án và cơ sở hạ tầng} & \textbf{32} & \textbf{2} \\
+\hline
+\quad 1.1. Thiết lập môi trường phát triển & 8 & 1 \\
+\hline
+\quad 1.2. Thiết kế cơ sở dữ liệu & 12 & 1 \\
+\hline
+\quad 1.3. Cấu hình Spring Boot backend & 8 & 1 \\
+\hline
+\quad 1.4. Cấu hình React frontend & 4 & 1 \\
+\hline
+\textbf{2. Phát triển module xác thực} & \textbf{24} & \textbf{1} \\
+\hline
+\quad 2.1. Phát triển API đăng ký/đăng nhập & 12 & 1 \\
+\hline
+\quad 2.2. Tích hợp JWT authentication & 8 & 1 \\
+\hline
+\quad 2.3. Phát triển UI đăng ký/đăng nhập & 4 & 1 \\
+\hline
+\textbf{3. Phát triển module quản lý phòng khám} & \textbf{24} & \textbf{1} \\
+\hline
+\quad 3.1. Backend: CRUD phòng khám & 8 & 1 \\
+\hline
+\quad 3.2. Backend: Quản lý thành viên & 8 & 1 \\
+\hline
+\quad 3.3. Frontend: UI quản lý phòng khám & 8 & 1 \\
+\hline
+\textbf{4. Phát triển module quản lý bệnh nhân} & \textbf{32} & \textbf{2} \\
+\hline
+\quad 4.1. Backend: CRUD bệnh nhân & 12 & 1 \\
+\hline
+\quad 4.2. Backend: Tìm kiếm và lọc & 8 & 1 \\
+\hline
+\quad 4.3. Frontend: Danh sách và form bệnh nhân & 12 & 1 \\
+\hline
+\textbf{5. Phát triển module quản lý lịch hẹn} & \textbf{40} & \textbf{2} \\
+\hline
+\quad 5.1. Backend: CRUD lịch hẹn & 12 & 1 \\
+\hline
+\quad 5.2. Backend: Kiểm tra xung đột lịch & 8 & 1 \\
+\hline
+\quad 5.3. Frontend: Danh sách lịch hẹn & 8 & 1 \\
+\hline
+\quad 5.4. Frontend: Calendar view & 12 & 1 \\
+\hline
+\textbf{6. Phát triển module quản lý điều trị} & \textbf{40} & \textbf{2} \\
+\hline
+\quad 6.1. Backend: CRUD điều trị & 12 & 1 \\
+\hline
+\quad 6.2. Backend: Quản lý thanh toán & 12 & 1 \\
+\hline
+\quad 6.3. Frontend: Form và chi tiết điều trị & 16 & 1 \\
+\hline
+\textbf{7. Phát triển module quản lý tồn kho} & \textbf{56} & \textbf{2} \\
+\hline
+\quad 7.1. Backend: Quản lý vật tư & 12 & 1 \\
+\hline
+\quad 7.2. Backend: Giao dịch nhập/xuất kho & 16 & 1 \\
+\hline
+\quad 7.3. Backend: Quản lý nhà cung cấp & 8 & 1 \\
+\hline
+\quad 7.4. Backend: Cảnh báo tồn kho & 8 & 1 \\
+\hline
+\quad 7.5. Frontend: UI quản lý kho & 12 & 1 \\
+\hline
+\textbf{8. Phát triển module đơn đặt labo} & \textbf{32} & \textbf{2} \\
+\hline
+\quad 8.1. Backend: CRUD đơn labo & 12 & 1 \\
+\hline
+\quad 8.2. Backend: Quản lý đối tác labo & 8 & 1 \\
+\hline
+\quad 8.3. Frontend: UI quản lý đơn labo & 12 & 1 \\
+\hline
+\textbf{9. Phát triển module báo cáo thống kê} & \textbf{40} & \textbf{2} \\
+\hline
+\quad 9.1. Backend: Báo cáo doanh thu & 16 & 1 \\
+\hline
+\quad 9.2. Backend: Báo cáo hiệu suất nhân viên & 8 & 1 \\
+\hline
+\quad 9.3. Frontend: Dashboard và biểu đồ & 16 & 1 \\
+\hline
+\textbf{10. Kiểm thử và hoàn thiện} & \textbf{48} & \textbf{3} \\
+\hline
+\quad 10.1. Kiểm thử đơn vị (Unit testing) & 16 & 1 \\
+\hline
+\quad 10.2. Kiểm thử tích hợp & 16 & 2 \\
+\hline
+\quad 10.3. Sửa lỗi và tối ưu hóa & 16 & 2 \\
+\hline
+\textbf{11. Triển khai và tài liệu} & \textbf{24} & \textbf{2} \\
+\hline
+\quad 11.1. Viết tài liệu hướng dẫn sử dụng & 8 & 1 \\
+\hline
+\quad 11.2. Viết tài liệu kỹ thuật & 8 & 1 \\
+\hline
+\quad 11.3. Chuẩn bị triển khai & 8 & 2 \\
+\hline
+\hline
+\textbf{TỔNG CỘNG} & \textbf{392} & \textbf{-} \\
+\hline
+\end{tabular}
+\end{table}
+
+\vspace{1em}
+
+\textbf{Bảng 2: Quản lý rủi ro dự án}
+
+\begin{table}[h]
+\centering
+\caption{Bảng quản lý rủi ro dự án}
+\scriptsize
+\begin{tabular}{|p{2.5cm}|p{2.5cm}|p{2cm}|p{1.8cm}|p{1.8cm}|p{2.5cm}|}
+\hline
+\textbf{Công việc/Hoạt động} & \multicolumn{3}{c|}{\textbf{Xác định rủi ro}} & \multicolumn{2}{c|}{\textbf{Quản lý rủi ro}} \\
+\cline{2-6}
+ & \textbf{Mối nguy} & \textbf{Rủi ro} & \textbf{Mức độ} & \textbf{Chiến lược} & \textbf{Biện pháp} \\
+\hline
+Thiết kế cơ sở dữ liệu & Thiết kế không đầy đủ, thiếu ràng buộc & Phải thiết kế lại sau này, ảnh hưởng toàn bộ dự án & Cao & Tránh & Đầu tư thời gian phân tích kỹ, review bởi senior developer, tham khảo best practices \\
+\hline
+Phát triển backend API & Thiếu kinh nghiệm với Spring Security & API không an toàn, dễ bị tấn công & Cao & Giảm thiểu & Học và áp dụng Spring Security best practices, sử dụng JWT, code review thường xuyên \\
+\hline
+Tích hợp frontend-backend & Sai lệch về cấu trúc dữ liệu giữa FE và BE & Lỗi khi gọi API, mất thời gian debug & Trung bình & Giảm thiểu & Định nghĩa rõ ràng DTO, sử dụng TypeScript, viết API documentation chi tiết \\
+\hline
+Quản lý thanh toán & Sai sót trong tính toán số tiền, công nợ & Sai sót tài chính, mất uy tín & Cao & Tránh & Sử dụng BigDecimal, kiểm thử kỹ các case thanh toán, review code cẩn thận \\
+\hline
+Quản lý tồn kho & Race condition khi nhiều người xuất kho cùng lúc & Số liệu tồn kho không chính xác & Cao & Giảm thiểu & Sử dụng database transaction, optimistic/pessimistic locking \\
+\hline
+Hiển thị lịch hẹn & Xung đột múi giờ, format ngày tháng & Hiển thị sai thời gian hẹn & Trung bình & Giảm thiểu & Chuẩn hóa timezone UTC, sử dụng LocalDateTime, test kỹ với nhiều timezone \\
+\hline
+Báo cáo thống kê & Query phức tạp, chậm với dữ liệu lớn & Hiệu suất kém, người dùng phải chờ lâu & Trung bình & Giảm thiểu & Tối ưu query SQL, tạo index, cache kết quả, sử dụng pagination \\
+\hline
+Tìm kiếm tiếng Việt & Không tìm được khi nhập không dấu & Trải nghiệm người dùng kém & Thấp & Chấp nhận & Document hướng dẫn người dùng, hoặc thêm chức năng convert không dấu nếu có thời gian \\
+\hline
+Kiểm thử & Thiếu thời gian kiểm thử đầy đủ & Nhiều lỗi khi đưa vào sử dụng & Cao & Giảm thiểu & Lập kế hoạch kiểm thử từ đầu, viết unit test song song với code, automated testing \\
+\hline
+Triển khai & Server không ổn định, thiếu kiến thức DevOps & Ứng dụng không chạy được trên production & Trung bình & Giảm thiểu & Sử dụng cloud platform đáng tin cậy (AWS, Heroku), docker containerization, document deployment process \\
+\hline
+Yêu cầu thay đổi & Khách hàng thay đổi yêu cầu giữa chừng & Mất thời gian, vượt budget & Trung bình & Giảm thiểu & Xác định rõ yêu cầu từ đầu, có hợp đồng rõ ràng, sử dụng Agile để linh hoạt \\
+\hline
+Quản lý thời gian & Ước lượng sai thời gian, trễ deadline & Chất lượng kém, khách hàng không hài lòng & Trung bình & Giảm thiểu & Ước lượng thêm 20-30\% buffer time, theo dõi tiến độ hàng tuần, ưu tiên các chức năng core \\
+\hline
+Thành viên nghỉ việc & Developer chính rời dự án giữa chừng & Mất kiến thức, chậm tiến độ & Cao & Giảm thiểu & Document code tốt, pair programming, knowledge sharing sessions, backup developer \\
+\hline
+\end{tabular}
+\end{table}
